@@ -2,6 +2,7 @@ import express, { Request, Response } from "express"
 
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import { userRoutes } from "./modules/user/user.router";
 
 
 // import { randomBytes } from "crypto";
@@ -35,7 +36,14 @@ app.use(cookieParser());
 
 // router 
 
-
+app.use('/api/auth', userRoutes)
+// app.use('/api/auth', authRoutes)
+// app.use('/api/tour', tourRoutes)
+// app.use('/api/tour', tourRoutes)
+// app.use('/api/wishlist', wishlistRouter)
+// app.use('/api/bookings', bookingRoutes)
+// app.use('/api/payment', paymentRoutes)
+// app.use('/api/reviews', reviewRoutes)
 
 // Test route for Vercel
 app.get("/test", (req, res) => {

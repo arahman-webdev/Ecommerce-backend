@@ -7,10 +7,22 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
- 
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  address   String?
+  profilePhoto String?
+  role      UserRole @default(CUSTOMER)
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  SELLER
+  CUSTOMER
 }
