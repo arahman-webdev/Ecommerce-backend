@@ -3,6 +3,8 @@ import express, { Request, Response } from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import { userRoutes } from "./modules/user/user.router";
+import globalErrorHandler from "./middleware/globalErrorHandler";
+import { authRoutes } from "./modules/auth/auth.router";
 
 
 // import { randomBytes } from "crypto";
@@ -37,7 +39,7 @@ app.use(cookieParser());
 // router 
 
 app.use('/api/auth', userRoutes)
-// app.use('/api/auth', authRoutes)
+app.use('/api/auth', authRoutes)
 // app.use('/api/tour', tourRoutes)
 // app.use('/api/tour', tourRoutes)
 // app.use('/api/wishlist', wishlistRouter)
@@ -60,7 +62,7 @@ app.get('/',(req:Request, res:Response)=>{
     res.send("Abdur Rahman Server is running")
 })
 
-
+app.use(globalErrorHandler)
 
 // const secretKey = randomBytes(32).toString("hex"); // Generates 32 random bytes and encodes to hex string
 // console.log(secretKey);
