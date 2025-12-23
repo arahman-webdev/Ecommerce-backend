@@ -15,6 +15,7 @@ model User {
   phone        String?
   address      String?
   profilePhoto String?
+  profileId    String?
   bio          String?
 
   role   UserRole   @default(CUSTOMER)
