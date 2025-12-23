@@ -8,19 +8,176 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  phone     String?
-  address   String?
-  profileId String?
+  id           String  @id @default(cuid())
+  name         String
+  email        String  @unique
+  password     String
+  phone        String?
+  address      String?
   profilePhoto String?
-  role      UserRole @default(CUSTOMER)
+  bio          String?
+
+  role   UserRole   @default(CUSTOMER)
   status UserStatus @default(ACTIVE)
-  bio       String?
+
+  products Product[] // seller products
+  reviews  Review[]
+  wishlist Wishlist[]
+  cart     Cart?
+  orders   Order[]
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  price       Float
+  stock       Int
+
+  seller   User   @relation(fields: [sellerId], references: [id])
+  sellerId String
+
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+
+  images     ProductImage[]
+  reviews    Review[]
+  orderItems OrderItem[]
+  wishlist   Wishlist[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  cartItems CartItem[]
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  imageUrl  String
+  imageId   String
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Wishlist {
+  id        String @id @default(cuid())
+  userId    String
+  productId String
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Review {
+  id      String  @id @default(cuid())
+  rating  Int
+  comment String?
+
+  userId    String
+  productId String
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Cart {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int
+
+  cart    Cart    @relation(fields: [cartId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  totalAmount Float
+  status      OrderStatus @default(PENDING)
+
+  items   OrderItem[]
+  payment Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// -------------------------
+// Payments
+// -------------------------
+model Payment {
+  id      String @id @default(cuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  amount Float
+  method PaymentMethod
+  status PaymentStatus @default(PENDING)
+
+  transactionId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SSLCommerzTransaction {
+  id            String @id @default(cuid())
+  transactionId String @unique
+  orderId       String @unique
+
+  sessionKey String?
+  gatewayUrl String?
+  valId      String?
+  amount     Float
+  currency   String  @default("BDT")
+  status     String  @default("PENDING")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum UserRole {
@@ -34,4 +191,25 @@ enum UserStatus {
   INACTIVE
   BLOCKED
   DELETED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum PaymentMethod {
+  SSL_COMMERZ
+  STRIPE
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
 }
