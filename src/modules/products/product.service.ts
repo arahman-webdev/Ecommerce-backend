@@ -269,54 +269,69 @@ if (payload.productImagesToAdd?.length) {
 
 
 const getProduct = async ({
-    page, limit, searchTerm, category, orderBy = 'asc', sortBy = 'createdAt'
+  page,
+  limit,
+  searchTerm,
+  category,
+  orderBy = "asc",
+  sortBy = "createdAt",
 }: {
-    page: number, limit: number, searchTerm?: string, category?: string, orderBy?: string, sortBy?: string
+  page: number
+  limit: number
+  searchTerm?: string
+  category?: string
+  orderBy?: "asc" | "desc"
+  sortBy?: "price" | "averageRating" | "createdAt" | "name"
 }) => {
-    const skip = (page - 1) * limit;
+  const skip = (page - 1) * limit
 
-    // Build where clause
-    const where: any = {};
+  const where: any = {}
 
-    if (searchTerm) {
-        where.name = { contains: searchTerm, mode: "insensitive" };
+  // 🔍 Search by name
+  if (searchTerm) {
+    where.name = {
+      contains: searchTerm,
+      mode: "insensitive",
     }
+  }
 
-    if (category) {
-        where.category = { name: { equals: category, mode: "insensitive" } };
+  // 🗂 Filter by category
+  if (category) {
+    where.category = {
+      name: {
+        contains: category,
+        mode: "insensitive",
+      },
     }
+  }
 
-    // Validate and set orderBy
-    const allowedSortFields = ['price', 'rating', 'createdAt', 'name'];
-    const allowedOrders = ['asc', 'desc'];
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      skip,
+      take: limit,
+      where,
+      orderBy: {
+        [sortBy]: orderBy,
+      },
+      include: {
+        productImages: true,
+        category: true,
+      },
+    }),
+    prisma.product.count({ where }),
+  ])
 
-    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
-    const validOrderBy = allowedOrders.includes(orderBy) ? orderBy : 'asc';
-
-    const [products, total] = await Promise.all([
-        prisma.product.findMany({
-            skip,
-            take: limit,
-            where,
-            orderBy: { [validSortBy]: validOrderBy },
-            include: {
-                productImages: true,
-                category: true
-            },
-        }),
-        prisma.product.count({ where })
-    ]);
-
-    return {
-        products,
-        pagination: {
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit)
-        }
-    };
+  return {
+    products,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  }
 }
+
 
 const getSingleProduct = async (slug: string) => {
     const product = await prisma.product.findUniqueOrThrow({

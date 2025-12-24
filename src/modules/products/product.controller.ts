@@ -271,26 +271,33 @@ const updateProduct = async (req: Request & { user?: any }, res: Response, next:
 };
 
 const getProduct = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 2
-        const searchTerm = (req.query.searchTerm as string) || ""
-        const category = (req.query.category as string) || ""
-        const sortBy = (req.query.sortBy as string)
-        const orderBy = (req.query.orderBy as string)
+  try {
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 10
+    const searchTerm = req.query.searchTerm as string
+    const category = req.query.category as string
+    const sortBy = req.query.sortBy as any
+    const orderBy = req.query.orderBy as any
 
-        console.log("from controller.....", orderBy, sortBy)
+    const result = await productService.getProduct({
+      page,
+      limit,
+      searchTerm,
+      category,
+      sortBy,
+      orderBy,
+    })
 
-        const result = await productService.getProduct({ page, limit, searchTerm, category, sortBy, orderBy })
-        res.json({
-            success: true,
-            data: result.products,
-            pagination: result.pagination
-        })
-    } catch (err) {
-        next(err)
-    }
+    res.status(200).json({
+      success: true,
+      data: result.products,
+      pagination: result.pagination,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
+
 
 
 const getSingleProduct = async (req: Request, res: Response, next: NextFunction) => {
