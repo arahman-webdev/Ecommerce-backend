@@ -279,11 +279,22 @@ const getProduct = async (req: Request, res: Response, next: NextFunction) => {
     const sortBy = req.query.sortBy as any
     const orderBy = req.query.orderBy as any
 
+    // 💰 Price filters
+    const minPrice = req.query.minPrice
+      ? Number(req.query.minPrice)
+      : undefined
+
+    const maxPrice = req.query.maxPrice
+      ? Number(req.query.maxPrice)
+      : undefined
+
     const result = await productService.getProduct({
       page,
       limit,
       searchTerm,
       category,
+      minPrice,
+      maxPrice,
       sortBy,
       orderBy,
     })

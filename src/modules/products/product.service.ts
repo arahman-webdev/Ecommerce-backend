@@ -273,6 +273,8 @@ const getProduct = async ({
   limit,
   searchTerm,
   category,
+  minPrice,
+  maxPrice,
   orderBy = "asc",
   sortBy = "createdAt",
 }: {
@@ -280,6 +282,8 @@ const getProduct = async ({
   limit: number
   searchTerm?: string
   category?: string
+  minPrice?: number
+  maxPrice?: number
   orderBy?: "asc" | "desc"
   sortBy?: "price" | "averageRating" | "createdAt" | "name"
 }) => {
@@ -302,6 +306,19 @@ const getProduct = async ({
         contains: category,
         mode: "insensitive",
       },
+    }
+  }
+
+  // 💰 Filter by price
+  if (minPrice || maxPrice) {
+    where.price = {}
+
+    if (minPrice) {
+      where.price.gte = minPrice
+    }
+
+    if (maxPrice) {
+      where.price.lte = maxPrice
     }
   }
 
@@ -331,6 +348,7 @@ const getProduct = async ({
     },
   }
 }
+
 
 
 const getSingleProduct = async (slug: string) => {
