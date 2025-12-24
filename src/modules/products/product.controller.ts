@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { productService } from "./product.service";
 import { uploadToCloudinary } from "../../config/uploadToCloudinary";
-
+import HTTP_STATUS from "http-status-codes"
 // Creating product category
 
 const createCategory = async (
@@ -32,108 +32,195 @@ const createCategory = async (
 }
 
 
-
-const createProduct = async (req: Request, res: Response, next: NextFunction) => {
+const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let data = req.body;
-        console.log("before creating parse", data)
-        if (data.data && typeof data.data === 'string') {
-            data = JSON.parse(data.data)
-            
-        }
+        const result = await productService.updateCategory(req.params.id, req.body)
 
-        const { name,slug, description, price, category,categoryId, stock } = data;
-
-
-
-        const images = []
-
-        if (req.files && Array.isArray(req.files)) {
-            for (const file of req.files) {
-                try {
-                    const uploaded = await uploadToCloudinary(file.buffer, "products");
-                    // Here you can choose to store multiple image URLs/IDs as needed
-                    // For simplicity, we're just assigning the last uploaded image
-                    images.push({
-                        imageUrl: uploaded.secure_url,
-                        imageId: uploaded.public_id,
-                    });
-                } catch (uploadError: any) {
-                   
-                }
-            }
-        }
-
-        const result = await productService.createProduct({
-            name,slug, description, price: parseFloat(price), category,categoryId, stock: parseInt(stock), productImages: {
-                create: images
-            }, 
-
-        })
-
-        res.json({
+        res.status(201).json({
             success: true,
-            message: "Product created successfully",
+            message: "Updated Successfully",
             data: result
         })
     } catch (err) {
+        console.log(err)
         next(err)
-        console.log("from controller.....", err)
     }
 }
 
-const getProduct = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const page = Number(req.query.page) || 1
-    const limit = Number(req.query.limit) || 10
 
-    const searchTerm =
-      typeof req.query.searchTerm === "string"
-        ? req.query.searchTerm
-        : undefined
+const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await productService.deleteCategory(req.params.id)
 
-    const category =
-      typeof req.query.category === "string"
-        ? req.query.category
-        : undefined
+        res.status(201).json({
+            success: true,
+            message: "Deleted Successfully",
+            data: result
+        })
+    } catch (err) {
+        console.log(err)
+        next(err)
+    }
+}
+const getCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await productService.getCategory()
 
-    const sortBy =
-      req.query.sortBy === "price" || req.query.sortBy === "createdAt"
-        ? req.query.sortBy
-        : undefined
-
-    const orderBy =
-      req.query.orderBy === "asc" || req.query.orderBy === "desc"
-        ? req.query.orderBy
-        : undefined
-
-    const result = await productService.getProduct({
-      page,
-      limit,
-      searchTerm,
-      category,
-      sortBy,
-      orderBy
-    })
-
-    res.status(200).json({
-      success: true,
-      data: result
-    })
-  } catch (err) {
-    next(err)
-  }
+        res.status(201).json({
+            success: true,
+            message: "Retrived Successfully",
+            data: result
+        })
+    } catch (err) {
+        console.log(err)
+        next(err)
+    }
 }
 
 
 
+const createProduct = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const sellerId = req.user.userId;
+    const data = JSON.parse(req.body.data);
+
+    // Upload images
+    const images: any[] = [];
+    if (req.files && Array.isArray(req.files)) {
+      for (const file of req.files) {
+        try {
+          const uploaded = await uploadToCloudinary(file.buffer, "product-images");
+          images.push({
+            imageUrl: uploaded.secure_url,
+            imageId: uploaded.public_id,
+          });
+        } catch (err) {
+          console.error("Image upload failed:", err);
+        }
+      }
+    }
+
+    // Handle variants from frontend
+    let variants = [];
+    if (data.variants && typeof data.variants === 'string') {
+      try {
+        variants = JSON.parse(data.variants);
+      } catch (e) {
+        variants = [];
+      }
+    } else if (Array.isArray(data.variants)) {
+      variants = data.variants;
+    }
+
+    // Build payload for service
+    const payload = {
+      ...data,
+      name: data.name || data.title, // Support both name and title
+      price: Number(data.price || data.fee || 0),
+      stock: Number(data.stock || 0),
+      categoryId: data.categoryId || data.category, // Accept both
+      averageRating: data.averageRating ? Number(data.averageRating) : 0,
+      reviewCount: data.reviewCount ? Number(data.reviewCount) : 0,
+      totalOrders: data.totalOrders ? Number(data.totalOrders) : 0,
+      isFeatured: data.isFeatured === 'true' || data.isFeatured === true,
+      weight: data.weight ? Number(data.weight) : null,
+      width: data.width ? Number(data.width) : null,
+      height: data.height ? Number(data.height) : null,
+      length: data.length ? Number(data.length) : null,
+      metaTitle: data.metaTitle || data.name || data.title,
+      metaDescription: data.metaDescription || data.description?.substring(0, 160),
+      productImages: images.length ? images : undefined,
+      variants: variants.length ? variants : undefined,
+    };
+
+    // Remove undefined fields
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined) {
+        delete payload[key];
+      }
+    });
+
+    const result = await productService.createProduct(sellerId, payload);
+
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Product creation error:", error);
+    
+    // Handle Prisma unique constraint error (duplicate slug)
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        message: "A product with similar details already exists",
+      });
+    }
+    
+    next(error);
+  }
+};
+
+const getProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 2
+        const searchTerm = (req.query.searchTerm as string) || ""
+        const category = (req.query.category as string) || ""
+        const sortBy = (req.query.sortBy as string)
+        const orderBy = (req.query.orderBy as string)
+
+        console.log("from controller.....", orderBy, sortBy)
+
+        const result = await productService.getProduct({ page, limit, searchTerm, category, sortBy, orderBy })
+        res.json({
+            success: true,
+            data: result.products,
+            pagination: result.pagination
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+
+const getSingleProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await productService.getSingleProduct(req.params.slug)
+        console.log(result)
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: "Product retrieved successfully",
+            data: result,
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await productService.deleteProduct(req.params.id)
+        console.log(result)
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: "Product deleted successfully",
+            data: result,
+        })
+    } catch (error) {
+        next(error)
+    }
+}
 
 export const productController = {
     createProduct,
     getProduct,
-    createCategory
+    getSingleProduct,
+    deleteProduct,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    getCategory
 }

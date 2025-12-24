@@ -38,6 +38,11 @@ export type Category = Prisma.CategoryModel
  */
 export type ProductImage = Prisma.ProductImageModel
 /**
+ * Model ProductVariant
+ * 
+ */
+export type ProductVariant = Prisma.ProductVariantModel
+/**
  * Model Wishlist
  * 
  */

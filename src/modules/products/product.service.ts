@@ -1,6 +1,7 @@
 
 // creating product category
 
+import { deleteFromCloudinary } from "../../config/deleteFromCloudinary"
 import { Prisma } from "../../generated/client"
 import { prisma } from "../../lib/prisma"
 
@@ -18,26 +19,133 @@ const createCategory = async (name: string) => {
   })
 }
 
+const updateCategory = async (id: string, payload: Partial<Prisma.CategoryCreateInput>) => {
+
+    const result = await prisma.category.update({
+        where: { id },
+        data: payload
+    })
+
+    return result
+}
 
 
-// creating product ----------------
-const createProduct = async (payload: Prisma.ProductCreateInput) => {
-  const slug = payload.name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
+const getCategory = async () => {
 
-  return prisma.product.create({
+    const result = await prisma.category.findMany({
+
+    })
+
+    return result
+}
+const deleteCategory = async (id: string) => {
+
+    const result = await prisma.category.delete({
+        where: { id }
+    })
+
+    return result
+}
+
+
+
+const createProduct = async (sellerId: string, payload: any) => {
+  // Generate slug from title/name
+  const baseSlug = payload.name.toLowerCase().split(" ").join("-");
+  const uniqueSlug = await generateUniqueSlug(baseSlug);
+  
+  // Extract necessary fields
+  const {
+    name,
+    description,
+    price,
+    stock,
+    categoryId, // Changed from 'category' to 'categoryId'
+    averageRating,
+    reviewCount,
+    totalOrders,
+    isFeatured,
+    productImages,
+    metaTitle,
+    metaDescription,
+    weight,
+    width,
+    height,
+    length,
+    variants,
+  } = payload;
+
+  // Create product with proper relations
+  const product = await prisma.product.create({
     data: {
-      ...payload,
-      slug
+      name,
+      slug: uniqueSlug,
+      description,
+      price: Number(price), // Ensure it's a number
+      stock: Number(stock) || 0,
+      categoryId: categoryId || null, // Set category relation
+      averageRating: averageRating ? Number(averageRating) : 0,
+      reviewCount: reviewCount ? Number(reviewCount) : 0,
+      totalOrders: totalOrders ? Number(totalOrders) : 0,
+      isFeatured: Boolean(isFeatured),
+      isActive: true,
+      userId: sellerId, // Use userId if your field is userId (original schema)
+      metaTitle,
+      metaDescription,
+      weight: weight ? Number(weight) : null,
+      width: width ? Number(width) : null,
+      height: height ? Number(height) : null,
+      length: length ? Number(length) : null,
+      // Handle product images if provided
+      productImages: productImages?.length ? {
+        create: productImages.map((img: any) => ({
+          imageUrl: img.imageUrl,
+          imageId: img.imageId,
+        }))
+      } : undefined,
+      // Handle variants if provided
+      variants: variants?.length ? {
+        create: variants.map((variant: any) => ({
+          color: variant.color || null,
+          size: variant.size || null,
+        }))
+      } : undefined,
     },
     include: {
-      images: true,
-      category: true
+      productImages: true,
+      variants: true,
+      category: true,
+      user: { // Changed from seller to user if using original schema
+        select: { 
+          id: true,
+          name: true, 
+          profilePhoto: true 
+        },
+      },
+    },
+  });
+
+  return product;
+};
+
+// Helper function to generate unique slug
+const generateUniqueSlug = async (baseSlug: string): Promise<string> => {
+  let slug = baseSlug;
+  let counter = 1;
+  
+  while (true) {
+    const existing = await prisma.product.findUnique({
+      where: { slug },
+    });
+    
+    if (!existing) {
+      return slug;
     }
-  })
-}
+    
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+};
 
 
 const updateProduct = async (
@@ -56,7 +164,7 @@ const updateProduct = async (
     where: { id },
     data: payload,
     include: {
-      images: true,
+      productImages: true,
       category: true
     }
   })
@@ -65,62 +173,124 @@ const updateProduct = async (
 
 
 
+
+
+
 const getProduct = async ({
-  page,
-  limit,
-  searchTerm,
-  category,
-  sortBy = "createdAt",
-  orderBy = "desc"
+    page, limit, searchTerm, category, orderBy = 'asc', sortBy = 'createdAt'
 }: {
-  page: number
-  limit: number
-  searchTerm?: string
-  category?: string
-  sortBy?: "price" | "createdAt"
-  orderBy?: "asc" | "desc"
+    page: number, limit: number, searchTerm?: string, category?: string, orderBy?: string, sortBy?: string
 }) => {
-  const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
 
-  const where: Prisma.ProductWhereInput = {
-    ...(searchTerm && {
-      name: { contains: searchTerm, mode: "insensitive" }
-    }),
-    ...(category && {
-      category: { name: category }
+    // Build where clause
+    const where: any = {};
+
+    if (searchTerm) {
+        where.name = { contains: searchTerm, mode: "insensitive" };
+    }
+
+    if (category) {
+        where.category = { name: { equals: category, mode: "insensitive" } };
+    }
+
+    // Validate and set orderBy
+    const allowedSortFields = ['price', 'rating', 'createdAt', 'name'];
+    const allowedOrders = ['asc', 'desc'];
+
+    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    const validOrderBy = allowedOrders.includes(orderBy) ? orderBy : 'asc';
+
+    const [products, total] = await Promise.all([
+        prisma.product.findMany({
+            skip,
+            take: limit,
+            where,
+            orderBy: { [validSortBy]: validOrderBy },
+            include: {
+                productImages: true,
+                category: true
+            },
+        }),
+        prisma.product.count({ where })
+    ]);
+
+    return {
+        products,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
+}
+
+const getSingleProduct = async (slug: string) => {
+    const product = await prisma.product.findUniqueOrThrow({
+        where: { slug },
+        include:{
+            productImages: true
+        }
     })
-  }
 
-  const [data, total] = await prisma.$transaction([
-    prisma.product.findMany({
-      skip,
-      take: limit,
-      where,
-      orderBy: { [sortBy]: orderBy },
-      include: {
-        images: true,
-        category: true
-      }
-    }),
-    prisma.product.count({ where })
-  ])
+    return product
+}
 
-  return {
-    meta: {
-      page,
-      limit,
-      total
-    },
-    data
-  }
+
+const deleteProduct = async(id:string)=>{
+    const product = await prisma.product.findFirstOrThrow({
+        where:{id},
+        include:{
+            productImages:true
+        }
+    })
+
+
+    if(product.productImages.length > 0){
+        for(const image of product.productImages){
+            try {
+                await deleteFromCloudinary(image.imageId as string)
+                console.log(image.imageId)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
+
+    for(const image of product.productImages){
+        const imageId = image.imageId
+        try {
+            await deleteFromCloudinary(imageId as string)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    await prisma.productImage.deleteMany({
+        where:{productId:id}
+    })
+
+
+    const result = await prisma.product.delete({where:{id}})
+
+
+
+    return result
 }
 
 
 
-
 export const productService = {
-    createProduct,
-    updateProduct,
-    getProduct,
-    createCategory
+  createProduct,
+  updateProduct,
+  getProduct,
+  deleteProduct,
+  getSingleProduct,
+  createCategory,
+  updateCategory,
+  getCategory,
+  deleteCategory
 }

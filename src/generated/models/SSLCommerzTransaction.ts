@@ -43,7 +43,7 @@ export type SSLCommerzTransactionMinAggregateOutputType = {
   valId: string | null
   amount: number | null
   currency: string | null
-  status: string | null
+  status: $Enums.PaymentStatus | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,7 +57,7 @@ export type SSLCommerzTransactionMaxAggregateOutputType = {
   valId: string | null
   amount: number | null
   currency: string | null
-  status: string | null
+  status: $Enums.PaymentStatus | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -224,7 +224,7 @@ export type SSLCommerzTransactionGroupByOutputType = {
   valId: string | null
   amount: number
   currency: string
-  status: string
+  status: $Enums.PaymentStatus
   createdAt: Date
   updatedAt: Date
   _count: SSLCommerzTransactionCountAggregateOutputType | null
@@ -261,7 +261,7 @@ export type SSLCommerzTransactionWhereInput = {
   valId?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   amount?: Prisma.FloatFilter<"SSLCommerzTransaction"> | number
   currency?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
-  status?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
+  status?: Prisma.EnumPaymentStatusFilter<"SSLCommerzTransaction"> | $Enums.PaymentStatus
   createdAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
 }
@@ -292,7 +292,7 @@ export type SSLCommerzTransactionWhereUniqueInput = Prisma.AtLeast<{
   valId?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   amount?: Prisma.FloatFilter<"SSLCommerzTransaction"> | number
   currency?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
-  status?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
+  status?: Prisma.EnumPaymentStatusFilter<"SSLCommerzTransaction"> | $Enums.PaymentStatus
   createdAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
 }, "id" | "transactionId" | "orderId">
@@ -328,7 +328,7 @@ export type SSLCommerzTransactionScalarWhereWithAggregatesInput = {
   valId?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
   amount?: Prisma.FloatWithAggregatesFilter<"SSLCommerzTransaction"> | number
   currency?: Prisma.StringWithAggregatesFilter<"SSLCommerzTransaction"> | string
-  status?: Prisma.StringWithAggregatesFilter<"SSLCommerzTransaction"> | string
+  status?: Prisma.EnumPaymentStatusWithAggregatesFilter<"SSLCommerzTransaction"> | $Enums.PaymentStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SSLCommerzTransaction"> | Date | string
 }
@@ -342,7 +342,7 @@ export type SSLCommerzTransactionCreateInput = {
   valId?: string | null
   amount: number
   currency?: string
-  status?: string
+  status?: $Enums.PaymentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -356,7 +356,7 @@ export type SSLCommerzTransactionUncheckedCreateInput = {
   valId?: string | null
   amount: number
   currency?: string
-  status?: string
+  status?: $Enums.PaymentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -370,7 +370,7 @@ export type SSLCommerzTransactionUpdateInput = {
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -384,7 +384,7 @@ export type SSLCommerzTransactionUncheckedUpdateInput = {
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -398,7 +398,7 @@ export type SSLCommerzTransactionCreateManyInput = {
   valId?: string | null
   amount: number
   currency?: string
-  status?: string
+  status?: $Enums.PaymentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -412,7 +412,7 @@ export type SSLCommerzTransactionUpdateManyMutationInput = {
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -426,7 +426,7 @@ export type SSLCommerzTransactionUncheckedUpdateManyInput = {
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -553,7 +553,7 @@ export type $SSLCommerzTransactionPayload<ExtArgs extends runtime.Types.Extensio
     valId: string | null
     amount: number
     currency: string
-    status: string
+    status: $Enums.PaymentStatus
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sSLCommerzTransaction"]>
@@ -987,7 +987,7 @@ export interface SSLCommerzTransactionFieldRefs {
   readonly valId: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
   readonly amount: Prisma.FieldRef<"SSLCommerzTransaction", 'Float'>
   readonly currency: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
-  readonly status: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
+  readonly status: Prisma.FieldRef<"SSLCommerzTransaction", 'PaymentStatus'>
   readonly createdAt: Prisma.FieldRef<"SSLCommerzTransaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SSLCommerzTransaction", 'DateTime'>
 }
