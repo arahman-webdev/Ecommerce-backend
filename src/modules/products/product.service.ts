@@ -33,7 +33,13 @@ const updateCategory = async (id: string, payload: Partial<Prisma.CategoryCreate
 const getCategory = async () => {
 
     const result = await prisma.category.findMany({
-
+      include:{
+        products:{
+          select:{
+            productImages:true
+          }
+        }
+      }
     })
 
     return result
