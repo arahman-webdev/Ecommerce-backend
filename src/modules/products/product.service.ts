@@ -148,28 +148,120 @@ const generateUniqueSlug = async (baseSlug: string): Promise<string> => {
 };
 
 
+
 const updateProduct = async (
-  id: string,
-  payload: Prisma.ProductUpdateInput
+  productId: string,
+  sellerId: string,
+  payload: any
 ) => {
-  const product = await prisma.product.findUnique({ where: { id } })
-
-  if (!product) {
-    throw new Error("Product not found")
-  }
-
-
-
-  return prisma.product.update({
-    where: { id },
-    data: payload,
+  const existingProduct = await prisma.product.findFirst({
+    where: {
+      id: productId,
+      userId: sellerId, // ✅ FIXED (was userId ❌)
+    },
     include: {
       productImages: true,
-      category: true
+    },
+  });
+
+  if (!existingProduct) {
+    throw new Error("Product not found or unauthorized");
+  }
+
+  // Handle slug
+  let slug = existingProduct.slug;
+  if (payload.name && payload.name !== existingProduct.name) {
+    const baseSlug = payload.name.toLowerCase().split(" ").join("-");
+    slug = await generateUniqueSlug(baseSlug);
+  }
+
+  /** -----------------------------
+   *  BASE UPDATE DATA
+   * ----------------------------- */
+  const updateData: any = {
+    name: payload.name,
+    description: payload.description,
+    price: payload.price,
+    stock: payload.stock,
+    isFeatured: payload.isFeatured,
+    isActive: payload.isActive,
+    metaTitle: payload.metaTitle,
+    metaDescription: payload.metaDescription,
+    weight: payload.weight,
+    width: payload.width,
+    height: payload.height,
+    length: payload.length,
+    slug,
+  };
+
+  // Remove undefined
+  Object.keys(updateData).forEach((key) => {
+    if (updateData[key] === undefined) delete updateData[key];
+  });
+
+ /** -----------------------------
+ *  PRODUCT IMAGES (REPLACE MODE)
+ * ----------------------------- */
+if (payload.productImagesToAdd?.length) {
+  // 1️⃣ Delete old images from Cloudinary
+  for (const img of existingProduct.productImages) {
+    try {
+      await deleteFromCloudinary(img.imageId);
+    } catch (err) {
+      console.error("Cloudinary delete failed:", err);
     }
-  })
+  }
+
+  // 2️⃣ Replace DB images
+  updateData.productImages = {
+    deleteMany: {}, // delete ALL old images
+    createMany: {
+      data: payload.productImagesToAdd.map((img: any) => ({
+        imageUrl: img.imageUrl,
+        imageId: img.imageId,
+      })),
+    },
+  };
 }
 
+
+  /** -----------------------------
+   *  VARIANTS
+   * ----------------------------- */
+  if (payload.variants) {
+    updateData.variants = {
+      deleteMany: {},
+      createMany: {
+        data: payload.variants.map((v: any) => ({
+          color: v.color || null,
+          size: v.size || null,
+        })),
+      },
+    };
+  }
+
+  /** -----------------------------
+   *  UPDATE
+   * ----------------------------- */
+  const updatedProduct = await prisma.product.update({
+    where: { id: productId },
+    data: updateData,
+    include: {
+      productImages: true,
+      variants: true,
+      category: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          profilePhoto: true,
+        },
+      },
+    },
+  });
+
+  return updatedProduct;
+};
 
 
 

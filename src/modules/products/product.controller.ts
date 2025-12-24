@@ -162,6 +162,114 @@ const createProduct = async (req: Request & { user?: any }, res: Response, next:
   }
 };
 
+// Update product
+const updateProduct = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
+  try {
+    const sellerId = req.user.userId;
+    const productId = req.params.id;
+    
+    // Parse form data
+    const data = req.body.data ? JSON.parse(req.body.data) : {};
+    
+    // Handle new image uploads
+    const newImages: any[] = [];
+    if (req.files && Array.isArray(req.files)) {
+      for (const file of req.files) {
+        try {
+          const uploaded = await uploadToCloudinary(file.buffer, "product-images");
+          newImages.push({
+            imageUrl: uploaded.secure_url,
+            imageId: uploaded.public_id,
+          });
+        } catch (err) {
+          console.error("Image upload failed:", err);
+        }
+      }
+    }
+
+    // Parse variants if provided
+    let variants = [];
+    if (data.variants) {
+      try {
+        variants = typeof data.variants === 'string' 
+          ? JSON.parse(data.variants) 
+          : data.variants;
+      } catch (e) {
+        variants = [];
+      }
+    }
+
+    // Parse images to delete
+    let imagesToDelete: string[] = [];
+    if (data.imagesToDelete) {
+      try {
+        imagesToDelete = typeof data.imagesToDelete === 'string'
+          ? JSON.parse(data.imagesToDelete)
+          : data.imagesToDelete;
+      } catch (e) {
+        imagesToDelete = [];
+      }
+    }
+
+    // Build payload
+    const payload = {
+      ...data,
+      // Convert numeric fields
+      price: data.price ? Number(data.price) : undefined,
+      stock: data.stock ? Number(data.stock) : undefined,
+      averageRating: data.averageRating ? Number(data.averageRating) : undefined,
+      reviewCount: data.reviewCount ? Number(data.reviewCount) : undefined,
+      totalOrders: data.totalOrders ? Number(data.totalOrders) : undefined,
+      
+      // Handle dimensions
+      weight: data.weight !== undefined ? (data.weight ? Number(data.weight) : null) : undefined,
+      width: data.width !== undefined ? (data.width ? Number(data.width) : null) : undefined,
+      height: data.height !== undefined ? (data.height ? Number(data.height) : null) : undefined,
+      length: data.length !== undefined ? (data.length ? Number(data.length) : null) : undefined,
+      
+      // Handle images
+      productImagesToAdd: newImages.length > 0 ? newImages : undefined,
+      productImagesToDelete: imagesToDelete.length > 0 ? imagesToDelete : undefined,
+      
+      // Handle variants
+      variants: variants.length > 0 ? variants : undefined,
+    };
+
+    // Remove undefined fields
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined) {
+        delete payload[key];
+      }
+    });
+
+    const result = await productService.updateProduct(productId, sellerId, payload);
+
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("Product update error:", error);
+    
+    if (error.message === 'Product not found or unauthorized') {
+      return res.status(404).json({
+        success: false,
+        message: error.message,
+      });
+    }
+    
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        message: "A product with similar details already exists",
+      });
+    }
+    
+    next(error);
+  }
+};
+
 const getProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const page = parseInt(req.query.page as string) || 1;
@@ -216,6 +324,7 @@ const deleteProduct = async (req: Request, res: Response, next: NextFunction) =>
 
 export const productController = {
     createProduct,
+    updateProduct,
     getProduct,
     getSingleProduct,
     deleteProduct,
