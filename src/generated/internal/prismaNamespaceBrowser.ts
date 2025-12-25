@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Address: 'Address',
   Product: 'Product',
   Category: 'Category',
   ProductImage: 'ProductImage',
@@ -99,6 +100,26 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const AddressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  fullName: 'fullName',
+  phone: 'phone',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  state: 'state',
+  postalCode: 'postalCode',
+  country: 'country',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AddressScalarFieldEnum = (typeof AddressScalarFieldEnum)[keyof typeof AddressScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -201,11 +222,21 @@ export type CartItemScalarFieldEnum = (typeof CartItemScalarFieldEnum)[keyof typ
 
 export const OrderScalarFieldEnum = {
   id: 'id',
+  orderNumber: 'orderNumber',
   userId: 'userId',
-  shippingAddress: 'shippingAddress',
-  billingAddress: 'billingAddress',
+  shippingAddressId: 'shippingAddressId',
+  billingAddressId: 'billingAddressId',
+  subtotal: 'subtotal',
+  shippingFee: 'shippingFee',
+  tax: 'tax',
+  discount: 'discount',
   totalAmount: 'totalAmount',
   status: 'status',
+  shippingMethod: 'shippingMethod',
+  trackingNumber: 'trackingNumber',
+  carrier: 'carrier',
+  estimatedDelivery: 'estimatedDelivery',
+  customerNotes: 'customerNotes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -218,7 +249,10 @@ export const OrderItemScalarFieldEnum = {
   orderId: 'orderId',
   productId: 'productId',
   quantity: 'quantity',
-  price: 'price'
+  price: 'price',
+  name: 'name',
+  variantId: 'variantId',
+  createdAt: 'createdAt'
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
@@ -231,6 +265,10 @@ export const PaymentScalarFieldEnum = {
   method: 'method',
   status: 'status',
   transactionId: 'transactionId',
+  valId: 'valId',
+  bankTransaction: 'bankTransaction',
+  cardLast4: 'cardLast4',
+  cardBrand: 'cardBrand',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -245,9 +283,14 @@ export const SSLCommerzTransactionScalarFieldEnum = {
   sessionKey: 'sessionKey',
   gatewayUrl: 'gatewayUrl',
   valId: 'valId',
+  bankTransaction: 'bankTransaction',
   amount: 'amount',
   currency: 'currency',
   status: 'status',
+  cusName: 'cusName',
+  cusEmail: 'cusEmail',
+  cusPhone: 'cusPhone',
+  cusAddress: 'cusAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

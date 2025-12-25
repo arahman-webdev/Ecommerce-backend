@@ -41,9 +41,14 @@ export type SSLCommerzTransactionMinAggregateOutputType = {
   sessionKey: string | null
   gatewayUrl: string | null
   valId: string | null
+  bankTransaction: string | null
   amount: number | null
   currency: string | null
-  status: $Enums.PaymentStatus | null
+  status: string | null
+  cusName: string | null
+  cusEmail: string | null
+  cusPhone: string | null
+  cusAddress: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -55,9 +60,14 @@ export type SSLCommerzTransactionMaxAggregateOutputType = {
   sessionKey: string | null
   gatewayUrl: string | null
   valId: string | null
+  bankTransaction: string | null
   amount: number | null
   currency: string | null
-  status: $Enums.PaymentStatus | null
+  status: string | null
+  cusName: string | null
+  cusEmail: string | null
+  cusPhone: string | null
+  cusAddress: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,9 +79,14 @@ export type SSLCommerzTransactionCountAggregateOutputType = {
   sessionKey: number
   gatewayUrl: number
   valId: number
+  bankTransaction: number
   amount: number
   currency: number
   status: number
+  cusName: number
+  cusEmail: number
+  cusPhone: number
+  cusAddress: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -93,9 +108,14 @@ export type SSLCommerzTransactionMinAggregateInputType = {
   sessionKey?: true
   gatewayUrl?: true
   valId?: true
+  bankTransaction?: true
   amount?: true
   currency?: true
   status?: true
+  cusName?: true
+  cusEmail?: true
+  cusPhone?: true
+  cusAddress?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -107,9 +127,14 @@ export type SSLCommerzTransactionMaxAggregateInputType = {
   sessionKey?: true
   gatewayUrl?: true
   valId?: true
+  bankTransaction?: true
   amount?: true
   currency?: true
   status?: true
+  cusName?: true
+  cusEmail?: true
+  cusPhone?: true
+  cusAddress?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -121,9 +146,14 @@ export type SSLCommerzTransactionCountAggregateInputType = {
   sessionKey?: true
   gatewayUrl?: true
   valId?: true
+  bankTransaction?: true
   amount?: true
   currency?: true
   status?: true
+  cusName?: true
+  cusEmail?: true
+  cusPhone?: true
+  cusAddress?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -222,9 +252,14 @@ export type SSLCommerzTransactionGroupByOutputType = {
   sessionKey: string | null
   gatewayUrl: string | null
   valId: string | null
+  bankTransaction: string | null
   amount: number
   currency: string
-  status: $Enums.PaymentStatus
+  status: string
+  cusName: string | null
+  cusEmail: string | null
+  cusPhone: string | null
+  cusAddress: string | null
   createdAt: Date
   updatedAt: Date
   _count: SSLCommerzTransactionCountAggregateOutputType | null
@@ -259,9 +294,14 @@ export type SSLCommerzTransactionWhereInput = {
   sessionKey?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   gatewayUrl?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   valId?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  bankTransaction?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   amount?: Prisma.FloatFilter<"SSLCommerzTransaction"> | number
   currency?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
-  status?: Prisma.EnumPaymentStatusFilter<"SSLCommerzTransaction"> | $Enums.PaymentStatus
+  status?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
+  cusName?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  cusEmail?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  cusPhone?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  cusAddress?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
 }
@@ -273,9 +313,14 @@ export type SSLCommerzTransactionOrderByWithRelationInput = {
   sessionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   gatewayUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   valId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankTransaction?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cusName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cusEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  cusPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  cusAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -290,9 +335,14 @@ export type SSLCommerzTransactionWhereUniqueInput = Prisma.AtLeast<{
   sessionKey?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   gatewayUrl?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   valId?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  bankTransaction?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   amount?: Prisma.FloatFilter<"SSLCommerzTransaction"> | number
   currency?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
-  status?: Prisma.EnumPaymentStatusFilter<"SSLCommerzTransaction"> | $Enums.PaymentStatus
+  status?: Prisma.StringFilter<"SSLCommerzTransaction"> | string
+  cusName?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  cusEmail?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  cusPhone?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
+  cusAddress?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
 }, "id" | "transactionId" | "orderId">
@@ -304,9 +354,14 @@ export type SSLCommerzTransactionOrderByWithAggregationInput = {
   sessionKey?: Prisma.SortOrderInput | Prisma.SortOrder
   gatewayUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   valId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankTransaction?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cusName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cusEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  cusPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  cusAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SSLCommerzTransactionCountOrderByAggregateInput
@@ -326,9 +381,14 @@ export type SSLCommerzTransactionScalarWhereWithAggregatesInput = {
   sessionKey?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
   gatewayUrl?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
   valId?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
+  bankTransaction?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
   amount?: Prisma.FloatWithAggregatesFilter<"SSLCommerzTransaction"> | number
   currency?: Prisma.StringWithAggregatesFilter<"SSLCommerzTransaction"> | string
-  status?: Prisma.EnumPaymentStatusWithAggregatesFilter<"SSLCommerzTransaction"> | $Enums.PaymentStatus
+  status?: Prisma.StringWithAggregatesFilter<"SSLCommerzTransaction"> | string
+  cusName?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
+  cusEmail?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
+  cusPhone?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
+  cusAddress?: Prisma.StringNullableWithAggregatesFilter<"SSLCommerzTransaction"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SSLCommerzTransaction"> | Date | string
 }
@@ -340,9 +400,14 @@ export type SSLCommerzTransactionCreateInput = {
   sessionKey?: string | null
   gatewayUrl?: string | null
   valId?: string | null
+  bankTransaction?: string | null
   amount: number
   currency?: string
-  status?: $Enums.PaymentStatus
+  status?: string
+  cusName?: string | null
+  cusEmail?: string | null
+  cusPhone?: string | null
+  cusAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -354,9 +419,14 @@ export type SSLCommerzTransactionUncheckedCreateInput = {
   sessionKey?: string | null
   gatewayUrl?: string | null
   valId?: string | null
+  bankTransaction?: string | null
   amount: number
   currency?: string
-  status?: $Enums.PaymentStatus
+  status?: string
+  cusName?: string | null
+  cusEmail?: string | null
+  cusPhone?: string | null
+  cusAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -368,9 +438,14 @@ export type SSLCommerzTransactionUpdateInput = {
   sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankTransaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cusName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -382,9 +457,14 @@ export type SSLCommerzTransactionUncheckedUpdateInput = {
   sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankTransaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cusName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -396,9 +476,14 @@ export type SSLCommerzTransactionCreateManyInput = {
   sessionKey?: string | null
   gatewayUrl?: string | null
   valId?: string | null
+  bankTransaction?: string | null
   amount: number
   currency?: string
-  status?: $Enums.PaymentStatus
+  status?: string
+  cusName?: string | null
+  cusEmail?: string | null
+  cusPhone?: string | null
+  cusAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -410,9 +495,14 @@ export type SSLCommerzTransactionUpdateManyMutationInput = {
   sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankTransaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cusName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -424,9 +514,14 @@ export type SSLCommerzTransactionUncheckedUpdateManyInput = {
   sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankTransaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cusName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -438,9 +533,14 @@ export type SSLCommerzTransactionCountOrderByAggregateInput = {
   sessionKey?: Prisma.SortOrder
   gatewayUrl?: Prisma.SortOrder
   valId?: Prisma.SortOrder
+  bankTransaction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cusName?: Prisma.SortOrder
+  cusEmail?: Prisma.SortOrder
+  cusPhone?: Prisma.SortOrder
+  cusAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -456,9 +556,14 @@ export type SSLCommerzTransactionMaxOrderByAggregateInput = {
   sessionKey?: Prisma.SortOrder
   gatewayUrl?: Prisma.SortOrder
   valId?: Prisma.SortOrder
+  bankTransaction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cusName?: Prisma.SortOrder
+  cusEmail?: Prisma.SortOrder
+  cusPhone?: Prisma.SortOrder
+  cusAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -470,9 +575,14 @@ export type SSLCommerzTransactionMinOrderByAggregateInput = {
   sessionKey?: Prisma.SortOrder
   gatewayUrl?: Prisma.SortOrder
   valId?: Prisma.SortOrder
+  bankTransaction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  cusName?: Prisma.SortOrder
+  cusEmail?: Prisma.SortOrder
+  cusPhone?: Prisma.SortOrder
+  cusAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -490,9 +600,14 @@ export type SSLCommerzTransactionSelect<ExtArgs extends runtime.Types.Extensions
   sessionKey?: boolean
   gatewayUrl?: boolean
   valId?: boolean
+  bankTransaction?: boolean
   amount?: boolean
   currency?: boolean
   status?: boolean
+  cusName?: boolean
+  cusEmail?: boolean
+  cusPhone?: boolean
+  cusAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["sSLCommerzTransaction"]>
@@ -504,9 +619,14 @@ export type SSLCommerzTransactionSelectCreateManyAndReturn<ExtArgs extends runti
   sessionKey?: boolean
   gatewayUrl?: boolean
   valId?: boolean
+  bankTransaction?: boolean
   amount?: boolean
   currency?: boolean
   status?: boolean
+  cusName?: boolean
+  cusEmail?: boolean
+  cusPhone?: boolean
+  cusAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["sSLCommerzTransaction"]>
@@ -518,9 +638,14 @@ export type SSLCommerzTransactionSelectUpdateManyAndReturn<ExtArgs extends runti
   sessionKey?: boolean
   gatewayUrl?: boolean
   valId?: boolean
+  bankTransaction?: boolean
   amount?: boolean
   currency?: boolean
   status?: boolean
+  cusName?: boolean
+  cusEmail?: boolean
+  cusPhone?: boolean
+  cusAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["sSLCommerzTransaction"]>
@@ -532,14 +657,19 @@ export type SSLCommerzTransactionSelectScalar = {
   sessionKey?: boolean
   gatewayUrl?: boolean
   valId?: boolean
+  bankTransaction?: boolean
   amount?: boolean
   currency?: boolean
   status?: boolean
+  cusName?: boolean
+  cusEmail?: boolean
+  cusPhone?: boolean
+  cusAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SSLCommerzTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "orderId" | "sessionKey" | "gatewayUrl" | "valId" | "amount" | "currency" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["sSLCommerzTransaction"]>
+export type SSLCommerzTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "orderId" | "sessionKey" | "gatewayUrl" | "valId" | "bankTransaction" | "amount" | "currency" | "status" | "cusName" | "cusEmail" | "cusPhone" | "cusAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["sSLCommerzTransaction"]>
 
 export type $SSLCommerzTransactionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SSLCommerzTransaction"
@@ -551,9 +681,14 @@ export type $SSLCommerzTransactionPayload<ExtArgs extends runtime.Types.Extensio
     sessionKey: string | null
     gatewayUrl: string | null
     valId: string | null
+    bankTransaction: string | null
     amount: number
     currency: string
-    status: $Enums.PaymentStatus
+    status: string
+    cusName: string | null
+    cusEmail: string | null
+    cusPhone: string | null
+    cusAddress: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["sSLCommerzTransaction"]>
@@ -985,9 +1120,14 @@ export interface SSLCommerzTransactionFieldRefs {
   readonly sessionKey: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
   readonly gatewayUrl: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
   readonly valId: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
+  readonly bankTransaction: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
   readonly amount: Prisma.FieldRef<"SSLCommerzTransaction", 'Float'>
   readonly currency: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
-  readonly status: Prisma.FieldRef<"SSLCommerzTransaction", 'PaymentStatus'>
+  readonly status: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
+  readonly cusName: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
+  readonly cusEmail: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
+  readonly cusPhone: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
+  readonly cusAddress: Prisma.FieldRef<"SSLCommerzTransaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"SSLCommerzTransaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SSLCommerzTransaction", 'DateTime'>
 }

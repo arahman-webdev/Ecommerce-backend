@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const AddressType = {
+  SHIPPING: 'SHIPPING',
+  BILLING: 'BILLING'
+} as const
+
+export type AddressType = (typeof AddressType)[keyof typeof AddressType]
+
+
 export const UserRole = {
   ADMIN: 'ADMIN',
   SELLER: 'SELLER',
@@ -31,9 +39,11 @@ export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 export const OrderStatus = {
   PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
+  CONFIRMED: 'CONFIRMED',
   SHIPPED: 'SHIPPED',
   DELIVERED: 'DELIVERED',
-  CANCELED: 'CANCELED'
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED'
 } as const
 
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
@@ -42,7 +52,8 @@ export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 export const PaymentMethod = {
   SSL_COMMERZ: 'SSL_COMMERZ',
   STRIPE: 'STRIPE',
-  CASH_ON_DELIVERY: 'CASH_ON_DELIVERY'
+  CASH_ON_DELIVERY: 'CASH_ON_DELIVERY',
+  BANK_TRANSFER: 'BANK_TRANSFER'
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
@@ -52,7 +63,8 @@ export const PaymentStatus = {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
-  CANCELLED: 'CANCELLED'
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED'
 } as const
 
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
