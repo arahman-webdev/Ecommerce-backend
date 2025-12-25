@@ -60,7 +60,7 @@ import statusCode from "http-status-codes"
     }
 
 
-export const TourWishlistService = {
+export const ProductWishlistService = {
     addToWishlist,
     removeFromWishlist,
     getWishlist

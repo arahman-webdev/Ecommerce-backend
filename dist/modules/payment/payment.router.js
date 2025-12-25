@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.paymentRoutes = void 0;
+const express_1 = __importDefault(require("express"));
+const checkAuth_1 = __importDefault(require("../../middleware/checkAuth"));
+const enums_1 = require("../../generated/enums");
+const payment_controller_1 = require("./payment.controller");
+const router = express_1.default.Router();
+// Create order from cart
+router.post("/create-order", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), payment_controller_1.PaymentController.createOrderController);
+// Initialize payment for existing order
+router.post("/initiate/:id", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), payment_controller_1.PaymentController.initiatePaymentController);
+// Get user orders
+router.get("/my-orders", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), payment_controller_1.PaymentController.getUserOrdersController);
+// Get order by ID
+router.get("/order/:id", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), payment_controller_1.PaymentController.getOrderByIdController);
+router.post("/ssl-fail", payment_controller_1.PaymentController.sslFailHandler);
+router.post("/ssl-cancel", payment_controller_1.PaymentController.sslCancelHandler);
+exports.paymentRoutes = router;

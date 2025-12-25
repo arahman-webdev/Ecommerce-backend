@@ -3,9 +3,10 @@ import express, { Request, Response } from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import { userRoutes } from "./modules/user/user.router";
-import globalErrorHandler from "./middleware/globalErrorHandler";
 import { authRoutes } from "./modules/auth/auth.router";
+import globalErrorHandler from "./middleware/globalErrorHandler";
 import { productRouter } from "./modules/products/product.router";
+import { wishlistRouter } from "./modules/wishlist/wishlist.router";
 import { paymentRoutes } from "./modules/payment/payment.router";
 
 
@@ -16,8 +17,8 @@ export const app = express()
 const corsOptions = {
     origin: [
         'http://localhost:3000',
-       
-        /\.vercel\.app$/ 
+        'https://local-guide-frontend.vercel.app',
+        /\.vercel\.app$/ // Allow all Vercel subdomains
     ],
     credentials: true, // ← MUST BE TRUE
     exposedHeaders: ['set-cookie'],
@@ -43,6 +44,7 @@ app.use(cookieParser());
 app.use('/api/auth', userRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/product', productRouter)
+app.use('/api/product', wishlistRouter)
 app.use('/api/payment', paymentRoutes)
 // app.use('/api/tour', tourRoutes)
 // app.use('/api/wishlist', wishlistRouter)

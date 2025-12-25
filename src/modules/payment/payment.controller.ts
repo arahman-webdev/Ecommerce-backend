@@ -5,41 +5,46 @@ import httpStatus from "http-status-codes";
 import { prisma } from "../../lib/prisma";
 import { OrderPaymentService } from "./payment.service";
 
-// Create order from cart
-const createOrderController = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
-    try {
-        const userId = req.user?.id;
-        
-        if (!userId) {
-            throw new AppError(httpStatus.UNAUTHORIZED, "User authentication required");
-        }
+const createOrderController = async (
+  req: Request & { user?: any },
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.userId;
 
-        const order = await OrderPaymentService.createOrderFromCart(userId, req.body);
-
-        // If payment method is COD, return order directly
-        if (req.body.paymentMethod === "CASH_ON_DELIVERY") {
-            return res.status(httpStatus.CREATED).json({
-                success: true,
-                message: "Order created successfully with Cash on Delivery",
-                data: { order }
-            });
-        }
-
-        // For online payments, initialize payment
-        const paymentResult = await OrderPaymentService.initOrderPayment(order.id, userId);
-
-        res.status(httpStatus.CREATED).json({
-            success: true,
-            message: "Order created and payment initialized",
-            data: {
-                order,
-                payment: paymentResult.data
-            }
-        });
-
-    } catch (error) {
-        next(error);
+    if (!userId) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "User authentication required");
     }
+
+    if (!req.body.items || req.body.items.length === 0) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Cart items missing");
+    }
+
+    const order = await OrderPaymentService.createOrderFromCart(userId, req.body);
+
+    if (req.body.paymentMethod === "CASH_ON_DELIVERY") {
+      return res.status(httpStatus.CREATED).json({
+        success: true,
+        message: "Order created successfully with Cash on Delivery",
+        data: { order }
+      });
+    }
+
+    const paymentResult = await OrderPaymentService.initOrderPayment(order.id, userId);
+
+    res.status(httpStatus.CREATED).json({
+      success: true,
+      message: "Order created and payment initialized",
+      data: {
+        order,
+        payment: paymentResult.data
+      }
+    });
+
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Initialize payment for existing order
