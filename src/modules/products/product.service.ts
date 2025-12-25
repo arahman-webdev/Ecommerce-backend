@@ -36,7 +36,7 @@ const getCategory = async () => {
       include:{
         products:{
           select:{
-            productImages:true
+            productImages:true 
           }
         }
       }
