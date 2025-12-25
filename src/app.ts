@@ -6,6 +6,7 @@ import { userRoutes } from "./modules/user/user.router";
 import globalErrorHandler from "./middleware/globalErrorHandler";
 import { authRoutes } from "./modules/auth/auth.router";
 import { productRouter } from "./modules/products/product.router";
+import { paymentRoutes } from "./modules/payment/payment.router";
 
 
 // import { randomBytes } from "crypto";
@@ -42,6 +43,7 @@ app.use(cookieParser());
 app.use('/api/auth', userRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/product', productRouter)
+app.use('/api/payment', paymentRoutes)
 // app.use('/api/tour', tourRoutes)
 // app.use('/api/wishlist', wishlistRouter)
 // app.use('/api/bookings', bookingRoutes)
