@@ -27,8 +27,40 @@ model User {
   cart     Cart?
   orders   Order[]
 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  addresses Address[]
+}
+
+// Address model for shipping/billing
+model Address {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  type         AddressType @default(SHIPPING) // SHIPPING or BILLING
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String?
+  postalCode   String
+  country      String      @default("BD")
+  isDefault    Boolean     @default(false)
+
+  // Explicitly name the relations to Order
+  shippingOrders Order[] @relation("ShippingAddress")
+  billingOrders  Order[] @relation("BillingAddress")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@unique([userId, type, isDefault]) // One default per type per user
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
 }
 
 model Product {
@@ -91,14 +123,14 @@ model ProductImage {
   createdAt DateTime @default(now())
 }
 
-// product varient
-
+// product variant
 model ProductVariant {
-  id        String  @id @default(cuid())
-  color     String?
-  size      String?
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
+  id         String      @id @default(cuid())
+  color      String?
+  size       String?
+  product    Product     @relation(fields: [productId], references: [id])
+  productId  String
+  orderItems OrderItem[]
 }
 
 model Wishlist {
@@ -152,63 +184,117 @@ model CartItem {
 }
 
 model Order {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  id          String @id @default(cuid())
+  orderNumber String @unique // Custom format: ORD-20241224-001
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
 
-  shippingAddress String? // Or create separate Address model
-  billingAddress  String?
+  // Address information - FIXED with relation names
+  shippingAddressId String?
+  shippingAddress   Address? @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddressId  String?
+  billingAddress    Address? @relation("BillingAddress", fields: [billingAddressId], references: [id])
 
+  // Order details
+  items       OrderItem[]
+  subtotal    Float
+  shippingFee Float       @default(0)
+  tax         Float       @default(0)
+  discount    Float       @default(0)
   totalAmount Float
-  status      OrderStatus @default(PENDING)
 
-  items   OrderItem[]
+  // Status tracking
+  status OrderStatus @default(PENDING)
+
+  // Payment
   payment Payment?
 
+  // Shipping
+  shippingMethod    String?
+  trackingNumber    String?
+  carrier           String?
+  estimatedDelivery DateTime?
+
+  // Customer notes
+  customerNotes String?
+
+  // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([orderNumber])
 }
 
+// Order items (products in order)
 model OrderItem {
   id        String @id @default(cuid())
   orderId   String
   productId String
   quantity  Int
-  price     Float
+  price     Float // Price at time of purchase
+  name      String // Product name at time of purchase
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+
+  // Variants (if applicable)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([orderId, productId, variantId])
+  @@index([productId])
 }
 
 // -------------------------
 // Payments
 // -------------------------
 model Payment {
-  id      String @id @default(cuid())
-  orderId String @unique
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  amount Float
-  method PaymentMethod
-  status PaymentStatus @default(PENDING)
-
-  transactionId String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String  @id @default(cuid())
+  orderId     String  @unique
+  order       Order   @relation(fields: [orderId], references: [id])
+  
+  amount      Float
+  method      PaymentMethod
+  status      PaymentStatus @default(PENDING)
+  
+  // SSL Commerz specific
+  transactionId String? @unique
+  valId         String? // SSL validation ID
+  bankTransaction String? // Bank transaction ID
+  
+  // Payment details (for card payments)
+  cardLast4   String?
+  cardBrand   String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model SSLCommerzTransaction {
   id            String @id @default(cuid())
   transactionId String @unique
   orderId       String @unique
-
+  
   sessionKey String?
   gatewayUrl String?
   valId      String?
+  bankTransaction String?
+  
   amount     Float
-  currency   String        @default("BDT")
-  status     PaymentStatus @default(PENDING)
-
+  currency   String  @default("BDT")
+  status     String  @default("PENDING") // PENDING, SUCCESS, FAILED, CANCELLED
+  
+  // Customer info from SSL
+  cusName    String?
+  cusEmail   String?
+  cusPhone   String?
+  cusAddress String?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -229,15 +315,18 @@ enum UserStatus {
 enum OrderStatus {
   PENDING
   PROCESSING
+  CONFIRMED
   SHIPPED
   DELIVERED
-  CANCELED
+  CANCELLED
+  REFUNDED
 }
 
 enum PaymentMethod {
   SSL_COMMERZ
   STRIPE
   CASH_ON_DELIVERY
+  BANK_TRANSFER
 }
 
 enum PaymentStatus {
@@ -245,4 +334,5 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   CANCELLED
+  REFUNDED
 }
