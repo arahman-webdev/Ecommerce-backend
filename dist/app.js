@@ -18,7 +18,7 @@ exports.app = (0, express_1.default)();
 const corsOptions = {
     origin: [
         'http://localhost:3000',
-        'https://local-guide-frontend.vercel.app',
+        'https://nextjs-ecommerce-frontend-zeta.vercel.app',
         /\.vercel\.app$/ // Allow all Vercel subdomains
     ],
     credentials: true, // ← MUST BE TRUE

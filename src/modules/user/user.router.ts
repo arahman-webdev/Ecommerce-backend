@@ -13,11 +13,11 @@ import checkAuth from "../../middleware/checkAuth"
 
 const router = express.Router()
 
-
 router.post("/register", UserController.createUser)
-router.patch("/register",  UserController.updateUser)
-router.patch("/:id",checkAuth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.SELLER), upload.single("image"), UserController.updateUser)
-router.get("/me",checkAuth(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.SELLER), UserController.getMyProfile)
+router.get("/users", UserController.getAllUsers)
+router.patch("/:id",checkAuth(UserRole.SELLER, UserRole.CUSTOMER,UserRole.ADMIN), upload.single("image"), UserController.updateUser)
+router.get("/me",checkAuth(UserRole.ADMIN, UserRole.SELLER, UserRole.CUSTOMER), UserController.getMyProfile)
+router.patch("/status/:userId",checkAuth(UserRole.ADMIN),UserController.updateUserStatus);
 
 
 

@@ -1,7 +1,7 @@
 import bcryptjs from "bcryptjs";
 import statusCodes from "http-status-codes"
 import { prisma } from "../../lib/prisma";
-import { Prisma, UserStatus } from "../../generated/client";
+import { Prisma, UserRole, UserStatus } from "../../generated/client";
 import { deleteFromCloudinary } from "../../config/deleteFromCloudinary";
 import AppError from "../../helper/AppError";
 
@@ -131,10 +131,27 @@ const getMyProfile = async (user: any) => {
 
 
 
+const updateUserStatus = async (userId: string, status: UserStatus) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) throw new AppError(404, "User not found");
+
+
+  if (user.role === UserRole.ADMIN) {
+    throw new AppError(403, "You cannot modify another admin");
+  }
+
+  return prisma.user.update({
+    where: { id: userId },
+    data: { status },
+  });
+};
+
 
 export const UserService = {
   createUserService,
   updateUserService,
+  updateUserStatus,
   getAllUsers,
   getMyProfile
 
