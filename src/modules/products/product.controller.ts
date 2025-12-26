@@ -328,19 +328,37 @@ const getSingleProduct = async (req: Request, res: Response, next: NextFunction)
 }
 
 
-const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+const deleteProduct = async (
+  req: Request & { user?: { userId: string; userRole: string } },
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const result = await productService.deleteProduct(req.params.id)
-    console.log(result)
-    res.status(HTTP_STATUS.OK).json({
+    const tourId = req.params.id;
+
+    if (!req.user) {
+      throw new AppError(401, "Unauthorized");
+    }
+
+    // requester object EXACT structure required by service
+    const requester = {
+      id: req.user.userId,
+      userRole: req.user.userRole,
+    };
+
+    console.log("from tour controler ", requester)
+
+    const result = await productService.deleteProduct(tourId, requester);
+
+    res.status(200).json({
       success: true,
-      message: "Product deleted successfully",
+      message: "Tour deleted successfully",
       data: result,
-    })
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 
 const getMyProducts = async (

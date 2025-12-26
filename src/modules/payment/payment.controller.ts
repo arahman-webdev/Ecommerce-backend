@@ -304,6 +304,22 @@ const getOrderByIdController = async (req: Request & { user?: any }, res: Respon
     }
 };
 
+
+
+const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const bookings = await OrderPaymentService.getAllOrders();
+
+        res.status(200).json({
+            success: true,
+            message: "All orders retrieved successfully",
+            data: bookings,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const PaymentController = {
     createOrderController,
     initiatePaymentController,
@@ -311,5 +327,6 @@ export const PaymentController = {
     sslCancelHandler,
     sslFailHandler,
     getUserOrdersController,
-    getOrderByIdController
+    getOrderByIdController,
+    getAllOrders
 };

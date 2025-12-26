@@ -5,12 +5,12 @@ import { sslPaymentInit } from "../sslPayment/sslPayment.service";
 
 // Generate unique order number
 const generateOrderNumber = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `ORD-${year}${month}${day}-${random}`;
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `ORD-${year}${month}${day}-${random}`;
 };
 
 // Create order from frontend cart items
@@ -110,6 +110,7 @@ const createOrderFromCart = async (userId: string, payload: any) => {
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,
+            product: item.product,
             quantity: item.quantity,
             price: item.price,
             name: item.name
@@ -165,122 +166,122 @@ const createOrderFromCart = async (userId: string, payload: any) => {
 
 // Initialize SSL payment for an order
 const initOrderPayment = async (orderId: string, userId: string) => {
-    // Find order with relations
-    const order = await prisma.order.findUnique({
-        where: { 
-            id: orderId,
-            userId: userId
-        },
+  // Find order with relations
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+      userId: userId
+    },
+    include: {
+      payment: true,
+      user: true,
+      items: {
         include: {
-            payment: true,
-            user: true,
-            items: {
-                include: {
-                    product: true
-                }
-            },
-            shippingAddress: true,
-            billingAddress: true
+          product: true
         }
+      },
+      shippingAddress: true,
+      billingAddress: true
+    }
+  });
+
+  if (!order) {
+    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+  }
+
+  if (!order.payment) {
+    throw new AppError(httpStatus.NOT_FOUND, "Payment record not found");
+  }
+
+  // Check if payment is already completed
+  if (order.payment.status === 'COMPLETED') {
+    throw new AppError(httpStatus.BAD_REQUEST, "Payment already completed");
+  }
+
+  // Check if payment is pending
+  if (order.payment.status !== 'PENDING') {
+    throw new AppError(httpStatus.BAD_REQUEST, "Payment cannot be initiated");
+  }
+
+  // Get address for SSL payload
+  const address = order.shippingAddress || order.billingAddress;
+
+  // Calculate product name for SSL payload
+  const productNames = order.items.map(item => item.product.name);
+  const mainProductName = productNames.length > 0
+    ? productNames[0]
+    : "E-commerce Products";
+  const productCategory = productNames.length > 1
+    ? `${mainProductName} & ${productNames.length - 1} more`
+    : mainProductName;
+
+  // Prepare SSLCommerz payload
+  const sslPayload: any = {
+    amount: order.payment.amount,
+    transactionId: order.payment.transactionId as string,
+    orderId: order.id,
+    name: order.user.name || order.user.email.split("@")[0],
+    email: order.user.email,
+    phone: order.user.phone || "01700000000",
+    address: address ? `${address.addressLine1}, ${address.city}` : "Not provided",
+    city: address?.city || "Dhaka",
+    state: address?.state || "Dhaka",
+    postalCode: address?.postalCode || "1200",
+    productName: mainProductName,
+    productCategory: productCategory
+  };
+
+  // Initialize SSLCommerz payment
+  let sslResponse;
+
+  try {
+    sslResponse = await sslPaymentInit(sslPayload);
+
+    if (!sslResponse || sslResponse.status !== 'SUCCESS') {
+      throw new Error(`SSLCommerz initialization failed: ${sslResponse?.failedreason || 'Unknown error'}`);
+    }
+
+  } catch (error: any) {
+    console.error("SSL Payment Init Error:", error);
+
+    // Update payment status to failed
+    await prisma.payment.update({
+      where: { id: order.payment.id },
+      data: { status: 'FAILED' }
     });
 
-    if (!order) {
-        throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+    throw new AppError(httpStatus.BAD_REQUEST, `Payment initialization failed: ${error.message}`);
+  }
+
+  // Create SSL transaction record
+  await prisma.sSLCommerzTransaction.create({
+    data: {
+      transactionId: order.payment.transactionId as string,
+      orderId: order.id,
+      amount: order.payment.amount,
+      currency: "BDT",
+      sessionKey: sslResponse.sessionkey,
+      gatewayUrl: sslResponse.GatewayPageURL || sslResponse.redirectGatewayURL,
+      status: 'INITIATED',
+      cusName: order.user.name,
+      cusEmail: order.user.email,
+      cusPhone: order.user.phone,
+      cusAddress: sslPayload.address
     }
+  });
 
-    if (!order.payment) {
-        throw new AppError(httpStatus.NOT_FOUND, "Payment record not found");
+  return {
+    success: true,
+    message: "Payment initialized successfully",
+    data: {
+      paymentUrl: sslResponse.GatewayPageURL || sslResponse.redirectGatewayURL,
+      transactionId: order.payment.transactionId,
+      orderId: order.id,
+      amount: order.payment.amount,
+      currency: "BDT",
+      orderNumber: order.orderNumber
     }
-
-    // Check if payment is already completed
-    if (order.payment.status === 'COMPLETED') {
-        throw new AppError(httpStatus.BAD_REQUEST, "Payment already completed");
-    }
-
-    // Check if payment is pending
-    if (order.payment.status !== 'PENDING') {
-        throw new AppError(httpStatus.BAD_REQUEST, "Payment cannot be initiated");
-    }
-
-    // Get address for SSL payload
-    const address = order.shippingAddress || order.billingAddress;
-    
-    // Calculate product name for SSL payload
-    const productNames = order.items.map(item => item.product.name);
-    const mainProductName = productNames.length > 0 
-        ? productNames[0] 
-        : "E-commerce Products";
-    const productCategory = productNames.length > 1 
-        ? `${mainProductName} & ${productNames.length - 1} more`
-        : mainProductName;
-
-    // Prepare SSLCommerz payload
-    const sslPayload: any = {
-        amount: order.payment.amount,
-        transactionId: order.payment.transactionId as string,
-        orderId: order.id,
-        name: order.user.name || order.user.email.split("@")[0],
-        email: order.user.email,
-        phone: order.user.phone || "01700000000",
-        address: address ? `${address.addressLine1}, ${address.city}` : "Not provided",
-        city: address?.city || "Dhaka",
-        state: address?.state || "Dhaka",
-        postalCode: address?.postalCode || "1200",
-        productName: mainProductName,
-        productCategory: productCategory
-    };
-
-    // Initialize SSLCommerz payment
-    let sslResponse;
-    
-    try {
-        sslResponse = await sslPaymentInit(sslPayload);
-        
-        if (!sslResponse || sslResponse.status !== 'SUCCESS') {
-            throw new Error(`SSLCommerz initialization failed: ${sslResponse?.failedreason || 'Unknown error'}`);
-        }
-
-    } catch (error: any) {
-        console.error("SSL Payment Init Error:", error);
-        
-        // Update payment status to failed
-        await prisma.payment.update({
-            where: { id: order.payment.id },
-            data: { status: 'FAILED' }
-        });
-
-        throw new AppError(httpStatus.BAD_REQUEST, `Payment initialization failed: ${error.message}`);
-    }
-
-    // Create SSL transaction record
-    await prisma.sSLCommerzTransaction.create({
-        data: {
-            transactionId: order.payment.transactionId as string,
-            orderId: order.id,
-            amount: order.payment.amount,
-            currency: "BDT",
-            sessionKey: sslResponse.sessionkey,
-            gatewayUrl: sslResponse.GatewayPageURL || sslResponse.redirectGatewayURL,
-            status: 'INITIATED',
-            cusName: order.user.name,
-            cusEmail: order.user.email,
-            cusPhone: order.user.phone,
-            cusAddress: sslPayload.address
-        }
-    });
-
-    return {
-        success: true,
-        message: "Payment initialized successfully",
-        data: {
-            paymentUrl: sslResponse.GatewayPageURL || sslResponse.redirectGatewayURL,
-            transactionId: order.payment.transactionId,
-            orderId: order.id,
-            amount: order.payment.amount,
-            currency: "BDT",
-            orderNumber: order.orderNumber
-        }
-    };
+  };
 };
 
 // // Process successful payment callback
@@ -296,7 +297,7 @@ const initOrderPayment = async (orderId: string, userId: string) => {
 //             //         }
 //             //     }
 //             // }
-            
+
 //         });
 
 //         if (!sslTransaction || !sslTransaction.order) {
@@ -344,69 +345,99 @@ const initOrderPayment = async (orderId: string, userId: string) => {
 
 // Get user orders
 const getUserOrders = async (userId: string) => {
-    return await prisma.order.findMany({
-        where: { userId },
+  return await prisma.order.findMany({
+    where: { userId },
+    include: {
+      items: {
         include: {
-            items: {
-                include: {
-                    product: {
-                        include: {
-                            productImages: true
-                        }
-                    },
-                    variant: true
-                }
-            },
-            payment: true,
-            shippingAddress: true,
-            billingAddress: true
-        },
-        orderBy: {
-            createdAt: 'desc'
+          product: {
+            include: {
+              productImages: true
+            }
+          },
+          variant: true
         }
-    });
+      },
+      payment: true,
+      shippingAddress: true,
+      billingAddress: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
 };
 
 // Get order by ID
 const getOrderById = async (orderId: string, userId: string) => {
-    const order = await prisma.order.findUnique({
-        where: { id: orderId },
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      items: {
         include: {
-            items: {
-                include: {
-                    product: {
-                        include: {
-                            productImages: true
-                        }
-                    },
-                    variant: true
-                }
-            },
-            payment: true,
-            shippingAddress: true,
-            billingAddress: true,
-            user: true
+          product: {
+            include: {
+              productImages: true
+            }
+          },
+          variant: true
         }
-    });
-
-    if (!order) {
-        throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+      },
+      payment: true,
+      shippingAddress: true,
+      billingAddress: true,
+      user: true
     }
+  });
 
-    // Check if user owns this order or is admin
-    if (order.userId !== userId) {
-        throw new AppError(httpStatus.FORBIDDEN, "Access denied");
-    }
+  if (!order) {
+    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+  }
 
-    return order;
+  // Check if user owns this order or is admin
+  if (order.userId !== userId) {
+    throw new AppError(httpStatus.FORBIDDEN, "Access denied");
+  }
+
+  return order;
+};
+
+
+const getAllOrders = async () => {
+  return prisma.order.findMany({
+    include: {
+      
+      items: {
+        include: {
+          product: {
+            include: {
+              productImages: true
+            }
+          },
+          
+        }
+      },
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+
+      },
+      payment: true,
+
+
+    },
+    orderBy: { createdAt: "desc" },
+  });
 };
 
 export const OrderPaymentService = {
-    createOrderFromCart,
-    initOrderPayment,
-    // processSuccessfulPayment,
-    getUserOrders,
-    getOrderById
+  createOrderFromCart,
+  initOrderPayment,
+  getAllOrders,
+  getUserOrders,
+  getOrderById
 };
 
 

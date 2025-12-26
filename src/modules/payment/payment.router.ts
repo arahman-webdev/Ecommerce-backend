@@ -9,6 +9,10 @@ const router = express.Router();
 // Create order from cart
 router.post("/create-order", checkAuth(UserRole.CUSTOMER), PaymentController.createOrderController);
 
+// router.get("/my", checkAuth(UserRole.CUSTOMER), PaymentController.getMyBookings)
+// router.get("/my-products-orders", checkAuth(UserRole.SELLER), BookingController.getMyTourBookings);
+router.get("/orders", checkAuth(UserRole.ADMIN, UserRole.CUSTOMER), PaymentController.getAllOrders)
+
 // Initialize payment for existing order
 router.post("/initiate/:id", checkAuth(UserRole.CUSTOMER), PaymentController.initiatePaymentController);
 

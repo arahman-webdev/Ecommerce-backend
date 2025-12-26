@@ -338,6 +338,7 @@ const getProduct = async ({
         [sortBy]: orderBy,
       },
       include: {
+        user: { select: { name: true, profilePhoto: true } },
         productImages: true,
         category: true,
       },
@@ -369,50 +370,42 @@ const getSingleProduct = async (slug: string) => {
   return product
 }
 
+const deleteProduct = async (productId: string, requester: { id: string, userRole: string }) => {
+  const tour = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { productImages: true }
+  });
 
-const deleteProduct = async (id: string) => {
-  const product = await prisma.product.findFirstOrThrow({
-    where: { id },
-    include: {
-      productImages: true
-    }
-  })
+  if (!tour) throw new AppError(404, "Product not found");
 
+  // ROLE BASED ACCESS
+  const isOwner = tour.userId === requester.id;
+  const isAdmin = requester.userRole === UserRole.ADMIN;
 
-  if (product.productImages.length > 0) {
-    for (const image of product.productImages) {
-      try {
-        await deleteFromCloudinary(image.imageId as string)
-        console.log(image.imageId)
-      } catch (error) {
-        console.log(error)
-      }
-    }
+  console.log("request role", requester.userRole)
+
+  if (!isOwner && !isAdmin) {
+    throw new AppError(403, "You are not allowed to delete this tour");
   }
 
-
-  for (const image of product.productImages) {
-    const imageId = image.imageId
-    try {
-      await deleteFromCloudinary(imageId as string)
-    } catch (error) {
-      console.log(error)
-    }
+  // delete cloudinary images
+  for (const image of tour.productImages) {
+    try { await deleteFromCloudinary(image.imageId as string); } catch { }
   }
 
+  
+  await prisma.review.deleteMany({ where: { productId } });
+  await prisma.wishlist.deleteMany({ where: { productId } });
+  await prisma.orderItem.deleteMany({ where: { productId } });
+  await prisma.productImage.deleteMany({ where: { productId } });
+  return prisma.product.delete({ where: { id: productId } });
+};
 
-  await prisma.productImage.deleteMany({
-    where: { productId: id }
-  })
-
-
-  const result = await prisma.product.delete({ where: { id } })
 
 
 
-  return result
-}
 
+  
 
 const getMyProducts = async (guideId: string) => {
   const tour = await prisma.product.findMany({
