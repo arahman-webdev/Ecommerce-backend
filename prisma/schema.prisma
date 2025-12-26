@@ -54,7 +54,7 @@ model Address {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@unique([userId, type, isDefault]) // One default per type per user
 }
 
@@ -219,8 +219,9 @@ model Order {
   customerNotes String?
 
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  sslcommerzTransaction SSLCommerzTransaction?
 
   // Indexes
   @@index([userId, createdAt])
@@ -254,47 +255,47 @@ model OrderItem {
 // Payments
 // -------------------------
 model Payment {
-  id          String  @id @default(cuid())
-  orderId     String  @unique
-  order       Order   @relation(fields: [orderId], references: [id])
-  
-  amount      Float
-  method      PaymentMethod
-  status      PaymentStatus @default(PENDING)
-  
+  id      String @id @default(cuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  amount Float
+  method PaymentMethod
+  status PaymentStatus @default(PENDING)
+
   // SSL Commerz specific
-  transactionId String? @unique
-  valId         String? // SSL validation ID
+  transactionId   String? @unique
+  valId           String? // SSL validation ID
   bankTransaction String? // Bank transaction ID
-  
+
   // Payment details (for card payments)
-  cardLast4   String?
-  cardBrand   String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  cardLast4 String?
+  cardBrand String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model SSLCommerzTransaction {
-  id            String @id @default(cuid())
-  transactionId String @unique
-  orderId       String @unique
-  
-  sessionKey String?
-  gatewayUrl String?
-  valId      String?
+  id              String  @id @default(cuid())
+  transactionId   String  @unique
+  orderId         String  @unique
+  order           Order?  @relation(fields: [orderId], references: [id])
+  sessionKey      String?
+  gatewayUrl      String?
+  valId           String?
   bankTransaction String?
-  
-  amount     Float
-  currency   String  @default("BDT")
-  status     String  @default("PENDING") // PENDING, SUCCESS, FAILED, CANCELLED
-  
+
+  amount   Float
+  currency String @default("BDT")
+  status   String @default("PENDING") // PENDING, SUCCESS, FAILED, CANCELLED
+
   // Customer info from SSL
   cusName    String?
   cusEmail   String?
   cusPhone   String?
   cusAddress String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -12,6 +12,8 @@ router.post("/create-order", checkAuth(UserRole.CUSTOMER), PaymentController.cre
 // Initialize payment for existing order
 router.post("/initiate/:id", checkAuth(UserRole.CUSTOMER), PaymentController.initiatePaymentController);
 
+router.post("/success", PaymentController.sslSuccessHandler);
+
 // Get user orders
 router.get("/my-orders", checkAuth(UserRole.CUSTOMER), PaymentController.getUserOrdersController);
 

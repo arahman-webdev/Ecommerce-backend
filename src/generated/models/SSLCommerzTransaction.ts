@@ -304,6 +304,7 @@ export type SSLCommerzTransactionWhereInput = {
   cusAddress?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
 }
 
 export type SSLCommerzTransactionOrderByWithRelationInput = {
@@ -323,6 +324,7 @@ export type SSLCommerzTransactionOrderByWithRelationInput = {
   cusAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  order?: Prisma.OrderOrderByWithRelationInput
 }
 
 export type SSLCommerzTransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -345,6 +347,7 @@ export type SSLCommerzTransactionWhereUniqueInput = Prisma.AtLeast<{
   cusAddress?: Prisma.StringNullableFilter<"SSLCommerzTransaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SSLCommerzTransaction"> | Date | string
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
 }, "id" | "transactionId" | "orderId">
 
 export type SSLCommerzTransactionOrderByWithAggregationInput = {
@@ -396,7 +399,6 @@ export type SSLCommerzTransactionScalarWhereWithAggregatesInput = {
 export type SSLCommerzTransactionCreateInput = {
   id?: string
   transactionId: string
-  orderId: string
   sessionKey?: string | null
   gatewayUrl?: string | null
   valId?: string | null
@@ -410,6 +412,7 @@ export type SSLCommerzTransactionCreateInput = {
   cusAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderCreateNestedOneWithoutSslcommerzTransactionInput
 }
 
 export type SSLCommerzTransactionUncheckedCreateInput = {
@@ -434,7 +437,6 @@ export type SSLCommerzTransactionUncheckedCreateInput = {
 export type SSLCommerzTransactionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  orderId?: Prisma.StringFieldUpdateOperationsInput | string
   sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -448,6 +450,7 @@ export type SSLCommerzTransactionUpdateInput = {
   cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUpdateOneWithoutSslcommerzTransactionNestedInput
 }
 
 export type SSLCommerzTransactionUncheckedUpdateInput = {
@@ -491,7 +494,6 @@ export type SSLCommerzTransactionCreateManyInput = {
 export type SSLCommerzTransactionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  orderId?: Prisma.StringFieldUpdateOperationsInput | string
   sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -524,6 +526,11 @@ export type SSLCommerzTransactionUncheckedUpdateManyInput = {
   cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SSLCommerzTransactionNullableScalarRelationFilter = {
+  is?: Prisma.SSLCommerzTransactionWhereInput | null
+  isNot?: Prisma.SSLCommerzTransactionWhereInput | null
 }
 
 export type SSLCommerzTransactionCountOrderByAggregateInput = {
@@ -591,6 +598,126 @@ export type SSLCommerzTransactionSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
 }
 
+export type SSLCommerzTransactionCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.SSLCommerzTransactionCreateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.SSLCommerzTransactionCreateOrConnectWithoutOrderInput
+  connect?: Prisma.SSLCommerzTransactionWhereUniqueInput
+}
+
+export type SSLCommerzTransactionUncheckedCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.SSLCommerzTransactionCreateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.SSLCommerzTransactionCreateOrConnectWithoutOrderInput
+  connect?: Prisma.SSLCommerzTransactionWhereUniqueInput
+}
+
+export type SSLCommerzTransactionUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.SSLCommerzTransactionCreateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.SSLCommerzTransactionCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.SSLCommerzTransactionUpsertWithoutOrderInput
+  disconnect?: Prisma.SSLCommerzTransactionWhereInput | boolean
+  delete?: Prisma.SSLCommerzTransactionWhereInput | boolean
+  connect?: Prisma.SSLCommerzTransactionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SSLCommerzTransactionUpdateToOneWithWhereWithoutOrderInput, Prisma.SSLCommerzTransactionUpdateWithoutOrderInput>, Prisma.SSLCommerzTransactionUncheckedUpdateWithoutOrderInput>
+}
+
+export type SSLCommerzTransactionUncheckedUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.SSLCommerzTransactionCreateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.SSLCommerzTransactionCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.SSLCommerzTransactionUpsertWithoutOrderInput
+  disconnect?: Prisma.SSLCommerzTransactionWhereInput | boolean
+  delete?: Prisma.SSLCommerzTransactionWhereInput | boolean
+  connect?: Prisma.SSLCommerzTransactionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SSLCommerzTransactionUpdateToOneWithWhereWithoutOrderInput, Prisma.SSLCommerzTransactionUpdateWithoutOrderInput>, Prisma.SSLCommerzTransactionUncheckedUpdateWithoutOrderInput>
+}
+
+export type SSLCommerzTransactionCreateWithoutOrderInput = {
+  id?: string
+  transactionId: string
+  sessionKey?: string | null
+  gatewayUrl?: string | null
+  valId?: string | null
+  bankTransaction?: string | null
+  amount: number
+  currency?: string
+  status?: string
+  cusName?: string | null
+  cusEmail?: string | null
+  cusPhone?: string | null
+  cusAddress?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type SSLCommerzTransactionUncheckedCreateWithoutOrderInput = {
+  id?: string
+  transactionId: string
+  sessionKey?: string | null
+  gatewayUrl?: string | null
+  valId?: string | null
+  bankTransaction?: string | null
+  amount: number
+  currency?: string
+  status?: string
+  cusName?: string | null
+  cusEmail?: string | null
+  cusPhone?: string | null
+  cusAddress?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type SSLCommerzTransactionCreateOrConnectWithoutOrderInput = {
+  where: Prisma.SSLCommerzTransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.SSLCommerzTransactionCreateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedCreateWithoutOrderInput>
+}
+
+export type SSLCommerzTransactionUpsertWithoutOrderInput = {
+  update: Prisma.XOR<Prisma.SSLCommerzTransactionUpdateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedUpdateWithoutOrderInput>
+  create: Prisma.XOR<Prisma.SSLCommerzTransactionCreateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedCreateWithoutOrderInput>
+  where?: Prisma.SSLCommerzTransactionWhereInput
+}
+
+export type SSLCommerzTransactionUpdateToOneWithWhereWithoutOrderInput = {
+  where?: Prisma.SSLCommerzTransactionWhereInput
+  data: Prisma.XOR<Prisma.SSLCommerzTransactionUpdateWithoutOrderInput, Prisma.SSLCommerzTransactionUncheckedUpdateWithoutOrderInput>
+}
+
+export type SSLCommerzTransactionUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankTransaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cusName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SSLCommerzTransactionUncheckedUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  sessionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gatewayUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankTransaction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  cusName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cusAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type SSLCommerzTransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -610,6 +737,7 @@ export type SSLCommerzTransactionSelect<ExtArgs extends runtime.Types.Extensions
   cusAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  order?: boolean | Prisma.SSLCommerzTransaction$orderArgs<ExtArgs>
 }, ExtArgs["result"]["sSLCommerzTransaction"]>
 
 export type SSLCommerzTransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -629,6 +757,7 @@ export type SSLCommerzTransactionSelectCreateManyAndReturn<ExtArgs extends runti
   cusAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  order?: boolean | Prisma.SSLCommerzTransaction$orderArgs<ExtArgs>
 }, ExtArgs["result"]["sSLCommerzTransaction"]>
 
 export type SSLCommerzTransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -648,6 +777,7 @@ export type SSLCommerzTransactionSelectUpdateManyAndReturn<ExtArgs extends runti
   cusAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  order?: boolean | Prisma.SSLCommerzTransaction$orderArgs<ExtArgs>
 }, ExtArgs["result"]["sSLCommerzTransaction"]>
 
 export type SSLCommerzTransactionSelectScalar = {
@@ -670,10 +800,21 @@ export type SSLCommerzTransactionSelectScalar = {
 }
 
 export type SSLCommerzTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "orderId" | "sessionKey" | "gatewayUrl" | "valId" | "bankTransaction" | "amount" | "currency" | "status" | "cusName" | "cusEmail" | "cusPhone" | "cusAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["sSLCommerzTransaction"]>
+export type SSLCommerzTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  order?: boolean | Prisma.SSLCommerzTransaction$orderArgs<ExtArgs>
+}
+export type SSLCommerzTransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  order?: boolean | Prisma.SSLCommerzTransaction$orderArgs<ExtArgs>
+}
+export type SSLCommerzTransactionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  order?: boolean | Prisma.SSLCommerzTransaction$orderArgs<ExtArgs>
+}
 
 export type $SSLCommerzTransactionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SSLCommerzTransaction"
-  objects: {}
+  objects: {
+    order: Prisma.$OrderPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     transactionId: string
@@ -1085,6 +1226,7 @@ readonly fields: SSLCommerzTransactionFieldRefs;
  */
 export interface Prisma__SSLCommerzTransactionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  order<T extends Prisma.SSLCommerzTransaction$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SSLCommerzTransaction$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1147,6 +1289,10 @@ export type SSLCommerzTransactionFindUniqueArgs<ExtArgs extends runtime.Types.Ex
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
+  /**
    * Filter, which SSLCommerzTransaction to fetch.
    */
   where: Prisma.SSLCommerzTransactionWhereUniqueInput
@@ -1165,6 +1311,10 @@ export type SSLCommerzTransactionFindUniqueOrThrowArgs<ExtArgs extends runtime.T
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
+  /**
    * Filter, which SSLCommerzTransaction to fetch.
    */
   where: Prisma.SSLCommerzTransactionWhereUniqueInput
@@ -1182,6 +1332,10 @@ export type SSLCommerzTransactionFindFirstArgs<ExtArgs extends runtime.Types.Ext
    * Omit specific fields from the SSLCommerzTransaction
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
   /**
    * Filter, which SSLCommerzTransaction to fetch.
    */
@@ -1231,6 +1385,10 @@ export type SSLCommerzTransactionFindFirstOrThrowArgs<ExtArgs extends runtime.Ty
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
+  /**
    * Filter, which SSLCommerzTransaction to fetch.
    */
   where?: Prisma.SSLCommerzTransactionWhereInput
@@ -1279,6 +1437,10 @@ export type SSLCommerzTransactionFindManyArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
+  /**
    * Filter, which SSLCommerzTransactions to fetch.
    */
   where?: Prisma.SSLCommerzTransactionWhereInput
@@ -1322,6 +1484,10 @@ export type SSLCommerzTransactionCreateArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
+  /**
    * The data needed to create a SSLCommerzTransaction.
    */
   data: Prisma.XOR<Prisma.SSLCommerzTransactionCreateInput, Prisma.SSLCommerzTransactionUncheckedCreateInput>
@@ -1355,6 +1521,10 @@ export type SSLCommerzTransactionCreateManyAndReturnArgs<ExtArgs extends runtime
    */
   data: Prisma.SSLCommerzTransactionCreateManyInput | Prisma.SSLCommerzTransactionCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1369,6 +1539,10 @@ export type SSLCommerzTransactionUpdateArgs<ExtArgs extends runtime.Types.Extens
    * Omit specific fields from the SSLCommerzTransaction
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
   /**
    * The data needed to update a SSLCommerzTransaction.
    */
@@ -1421,6 +1595,10 @@ export type SSLCommerzTransactionUpdateManyAndReturnArgs<ExtArgs extends runtime
    * Limit how many SSLCommerzTransactions to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1435,6 +1613,10 @@ export type SSLCommerzTransactionUpsertArgs<ExtArgs extends runtime.Types.Extens
    * Omit specific fields from the SSLCommerzTransaction
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
   /**
    * The filter to search for the SSLCommerzTransaction to update in case it exists.
    */
@@ -1462,6 +1644,10 @@ export type SSLCommerzTransactionDeleteArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
+  /**
    * Filter which SSLCommerzTransaction to delete.
    */
   where: Prisma.SSLCommerzTransactionWhereUniqueInput
@@ -1482,6 +1668,25 @@ export type SSLCommerzTransactionDeleteManyArgs<ExtArgs extends runtime.Types.Ex
 }
 
 /**
+ * SSLCommerzTransaction.order
+ */
+export type SSLCommerzTransaction$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+}
+
+/**
  * SSLCommerzTransaction without action
  */
 export type SSLCommerzTransactionDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1493,4 +1698,8 @@ export type SSLCommerzTransactionDefaultArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the SSLCommerzTransaction
    */
   omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
 }

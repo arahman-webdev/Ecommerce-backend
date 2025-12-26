@@ -74,58 +74,125 @@ const initiatePaymentController = async (req: Request & { user?: any }, res: Res
     }
 };
 
-// // SSL Success Handler
-// const sslSuccessHandler = async (req: Request, res: Response, next: NextFunction) => {
-//     const transactionId = req.query.tran_id || req.query.transactionId;
-//     const orderId = req.query.value_a || req.query.orderId;
-//     const valId = req.query.val_id as string;
-//     const bankTransaction = req.query.bank_tran_id as string;
+// SSL Success Handler
+const sslSuccessHandler = async (req: Request, res: Response, next: NextFunction) => {
 
-//     if (!transactionId) {
-//         return res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?error=Missing transaction ID`);
-//     }
 
-//     try {
-//         await OrderPaymentService.processSuccessfulPayment(
-//             transactionId as string,
-//             valId,
-//             bankTransaction
-//         );
+    // Check BOTH naming conventions
+    const transactionId = req.query.tran_id || req.query.transactionId;
+    const orderId = req.query.value_a || req.query.orderId;
 
-//         return res.redirect(
-//             `${process.env.SSL_SUCCESS_FRONTEND_URL}?transactionId=${transactionId}&orderId=${orderId}`
-//         );
 
-//     } catch (error: any) {
-//         next(error);
-//         try {
-//             if (transactionId) {
-//                 await prisma.sSLCommerzTransaction.update({
-//                     where: { transactionId: transactionId as string },
-//                     data: { status: "FAILED", updatedAt: new Date() },
-//                 });
 
-//                 const transaction = await prisma.sSLCommerzTransaction.findUnique({
-//                     where: { transactionId: transactionId as string }
-//                 });
+    if (!transactionId) {
+        return res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?error=Missing transaction ID`);
+    }
 
-//                 if (transaction?.orderId) {
-//                     await prisma.payment.update({
-//                         where: { orderId: transaction.orderId },
-//                         data: { status: "FAILED", updatedAt: new Date() },
-//                     });
-//                 }
-//             }
-//         } catch (dbError) {
-//             console.error("Database update error:", dbError);
-//         }
+    try {
+        // 1️⃣ Find the transaction
+        const transaction = await prisma.sSLCommerzTransaction.findUnique({
+            where: {
+                transactionId: transactionId as string
+            },
+            include: {
+                order: {
+                    include: {
+                        payment: true
+                    }
+                }
+            },
+        });
 
-//         const errorMessage = encodeURIComponent(error.message || "Payment processing failed");
-//         return res.redirect(
-//             `${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${transactionId}&error=${errorMessage}`
-//         );
-//     }
-// };
+        if (!transaction || !transaction.order) {
+            console.log('❌ Transaction or booking not found:', transactionId);
+            return res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${transactionId}&error=Transaction not found`);
+        }
+
+        // Get bookingId from transaction if not in query
+        const actualOrderId = orderId as string || transaction.orderId;
+
+        console.log('🎯 Processing payment:', {
+            transactionId,
+            actualOrderId,
+            hasPayment: !!transaction.order.payment
+        });
+
+        // 2️⃣ For sandbox testing, skip verification
+        console.log('⚠️ Sandbox mode - processing without verification');
+
+        // Process payment without verification
+        await prisma.$transaction(async (tx) => {
+            // Update transaction
+            await tx.sSLCommerzTransaction.update({
+                where: { transactionId: transactionId as string },
+                data: {
+                    status: "SUCCESS",
+                    valId: "SANDBOX_TEST_" + Date.now(),
+                    bankTransaction: "SANDBOX_TEST_" + Date.now(),
+                    updatedAt: new Date()
+                },
+            });
+
+            // Update payment USING bookingId (not transactionId)
+            await tx.payment.update({
+                where: {
+                    orderId: actualOrderId as string
+                },
+                data: {
+                    status: "COMPLETED",
+                    updatedAt: new Date()
+                },
+            });
+
+            // Update booking
+            await tx.order.update({
+                where: { id: actualOrderId as string },
+                data: {
+                    status: "CONFIRMED",
+                    updatedAt: new Date()
+                },
+            });
+        });
+
+
+
+        return res.redirect(
+            `${process.env.SSL_SUCCESS_FRONTEND_URL}?transactionId=${transactionId}&orderId=${actualOrderId}`
+        );
+
+    } catch (error: any) {
+
+        next(error)
+        // Update as failed
+        try {
+            if (transactionId) {
+                await prisma.sSLCommerzTransaction.update({
+                    where: { transactionId: transactionId as string },
+                    data: { status: "FAILED", updatedAt: new Date() },
+                });
+
+                // Try to find booking to update payment
+                const transaction = await prisma.sSLCommerzTransaction.findUnique({
+                    where: { transactionId: transactionId as string }
+                });
+
+                if (transaction?.orderId) {
+                    await prisma.payment.update({
+                        where: { orderId: transaction.orderId }, // Use bookingId
+                        data: { status: "FAILED", updatedAt: new Date() },
+                    });
+                }
+            }
+        } catch (dbError) {
+            console.error("Database update error:", dbError);
+        }
+
+        const errorMessage = encodeURIComponent(error.message || "Payment processing failed");
+        return res.redirect(
+            `${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${transactionId}&error=${errorMessage}`
+        );
+    }
+};
 
 // SSL Fail Handler
 const sslFailHandler = async (req: Request, res: Response) => {
@@ -240,7 +307,7 @@ const getOrderByIdController = async (req: Request & { user?: any }, res: Respon
 export const PaymentController = {
     createOrderController,
     initiatePaymentController,
-    // sslSuccessHandler,
+    sslSuccessHandler,
     sslCancelHandler,
     sslFailHandler,
     getUserOrdersController,

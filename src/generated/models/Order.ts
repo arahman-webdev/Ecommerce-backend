@@ -341,6 +341,7 @@ export type OrderWhereInput = {
   billingAddress?: Prisma.XOR<Prisma.AddressNullableScalarRelationFilter, Prisma.AddressWhereInput> | null
   items?: Prisma.OrderItemListRelationFilter
   payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
+  sslcommerzTransaction?: Prisma.XOR<Prisma.SSLCommerzTransactionNullableScalarRelationFilter, Prisma.SSLCommerzTransactionWhereInput> | null
 }
 
 export type OrderOrderByWithRelationInput = {
@@ -367,6 +368,7 @@ export type OrderOrderByWithRelationInput = {
   billingAddress?: Prisma.AddressOrderByWithRelationInput
   items?: Prisma.OrderItemOrderByRelationAggregateInput
   payment?: Prisma.PaymentOrderByWithRelationInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionOrderByWithRelationInput
 }
 
 export type OrderWhereUniqueInput = Prisma.AtLeast<{
@@ -396,6 +398,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   billingAddress?: Prisma.XOR<Prisma.AddressNullableScalarRelationFilter, Prisma.AddressWhereInput> | null
   items?: Prisma.OrderItemListRelationFilter
   payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
+  sslcommerzTransaction?: Prisma.XOR<Prisma.SSLCommerzTransactionNullableScalarRelationFilter, Prisma.SSLCommerzTransactionWhereInput> | null
 }, "id" | "orderNumber">
 
 export type OrderOrderByWithAggregationInput = {
@@ -469,6 +472,7 @@ export type OrderCreateInput = {
   billingAddress?: Prisma.AddressCreateNestedOneWithoutBillingOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUncheckedCreateInput = {
@@ -492,6 +496,7 @@ export type OrderUncheckedCreateInput = {
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUpdateInput = {
@@ -515,6 +520,7 @@ export type OrderUpdateInput = {
   billingAddress?: Prisma.AddressUpdateOneWithoutBillingOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateInput = {
@@ -538,6 +544,7 @@ export type OrderUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderCreateManyInput = {
@@ -692,6 +699,11 @@ export type OrderSumOrderByAggregateInput = {
 export type OrderScalarRelationFilter = {
   is?: Prisma.OrderWhereInput
   isNot?: Prisma.OrderWhereInput
+}
+
+export type OrderNullableScalarRelationFilter = {
+  is?: Prisma.OrderWhereInput | null
+  isNot?: Prisma.OrderWhereInput | null
 }
 
 export type OrderCreateNestedManyWithoutUserInput = {
@@ -856,6 +868,22 @@ export type OrderUpdateOneRequiredWithoutPaymentNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutPaymentInput, Prisma.OrderUpdateWithoutPaymentInput>, Prisma.OrderUncheckedUpdateWithoutPaymentInput>
 }
 
+export type OrderCreateNestedOneWithoutSslcommerzTransactionInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutSslcommerzTransactionInput, Prisma.OrderUncheckedCreateWithoutSslcommerzTransactionInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutSslcommerzTransactionInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUpdateOneWithoutSslcommerzTransactionNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutSslcommerzTransactionInput, Prisma.OrderUncheckedCreateWithoutSslcommerzTransactionInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutSslcommerzTransactionInput
+  upsert?: Prisma.OrderUpsertWithoutSslcommerzTransactionInput
+  disconnect?: Prisma.OrderWhereInput | boolean
+  delete?: Prisma.OrderWhereInput | boolean
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutSslcommerzTransactionInput, Prisma.OrderUpdateWithoutSslcommerzTransactionInput>, Prisma.OrderUncheckedUpdateWithoutSslcommerzTransactionInput>
+}
+
 export type OrderCreateWithoutUserInput = {
   id?: string
   orderNumber: string
@@ -876,6 +904,7 @@ export type OrderCreateWithoutUserInput = {
   billingAddress?: Prisma.AddressCreateNestedOneWithoutBillingOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutUserInput = {
@@ -898,6 +927,7 @@ export type OrderUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedCreateNestedOneWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutUserInput = {
@@ -970,6 +1000,7 @@ export type OrderCreateWithoutShippingAddressInput = {
   billingAddress?: Prisma.AddressCreateNestedOneWithoutBillingOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutShippingAddressInput = {
@@ -992,6 +1023,7 @@ export type OrderUncheckedCreateWithoutShippingAddressInput = {
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedCreateNestedOneWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutShippingAddressInput = {
@@ -1024,6 +1056,7 @@ export type OrderCreateWithoutBillingAddressInput = {
   shippingAddress?: Prisma.AddressCreateNestedOneWithoutShippingOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutBillingAddressInput = {
@@ -1046,6 +1079,7 @@ export type OrderUncheckedCreateWithoutBillingAddressInput = {
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedCreateNestedOneWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutBillingAddressInput = {
@@ -1110,6 +1144,7 @@ export type OrderCreateWithoutItemsInput = {
   shippingAddress?: Prisma.AddressCreateNestedOneWithoutShippingOrdersInput
   billingAddress?: Prisma.AddressCreateNestedOneWithoutBillingOrdersInput
   payment?: Prisma.PaymentCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutItemsInput = {
@@ -1132,6 +1167,7 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedCreateNestedOneWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutItemsInput = {
@@ -1170,6 +1206,7 @@ export type OrderUpdateWithoutItemsInput = {
   shippingAddress?: Prisma.AddressUpdateOneWithoutShippingOrdersNestedInput
   billingAddress?: Prisma.AddressUpdateOneWithoutBillingOrdersNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutItemsInput = {
@@ -1192,6 +1229,7 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderCreateWithoutPaymentInput = {
@@ -1214,6 +1252,7 @@ export type OrderCreateWithoutPaymentInput = {
   shippingAddress?: Prisma.AddressCreateNestedOneWithoutShippingOrdersInput
   billingAddress?: Prisma.AddressCreateNestedOneWithoutBillingOrdersInput
   items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutPaymentInput = {
@@ -1236,6 +1275,7 @@ export type OrderUncheckedCreateWithoutPaymentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedCreateNestedOneWithoutOrderInput
 }
 
 export type OrderCreateOrConnectWithoutPaymentInput = {
@@ -1274,6 +1314,7 @@ export type OrderUpdateWithoutPaymentInput = {
   shippingAddress?: Prisma.AddressUpdateOneWithoutShippingOrdersNestedInput
   billingAddress?: Prisma.AddressUpdateOneWithoutBillingOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutPaymentInput = {
@@ -1296,6 +1337,115 @@ export type OrderUncheckedUpdateWithoutPaymentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderCreateWithoutSslcommerzTransactionInput = {
+  id?: string
+  orderNumber: string
+  subtotal: number
+  shippingFee?: number
+  tax?: number
+  discount?: number
+  totalAmount: number
+  status?: $Enums.OrderStatus
+  shippingMethod?: string | null
+  trackingNumber?: string | null
+  carrier?: string | null
+  estimatedDelivery?: Date | string | null
+  customerNotes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutOrdersInput
+  shippingAddress?: Prisma.AddressCreateNestedOneWithoutShippingOrdersInput
+  billingAddress?: Prisma.AddressCreateNestedOneWithoutBillingOrdersInput
+  items?: Prisma.OrderItemCreateNestedManyWithoutOrderInput
+  payment?: Prisma.PaymentCreateNestedOneWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutSslcommerzTransactionInput = {
+  id?: string
+  orderNumber: string
+  userId: string
+  shippingAddressId?: string | null
+  billingAddressId?: string | null
+  subtotal: number
+  shippingFee?: number
+  tax?: number
+  discount?: number
+  totalAmount: number
+  status?: $Enums.OrderStatus
+  shippingMethod?: string | null
+  trackingNumber?: string | null
+  carrier?: string | null
+  estimatedDelivery?: Date | string | null
+  customerNotes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.OrderItemUncheckedCreateNestedManyWithoutOrderInput
+  payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutSslcommerzTransactionInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutSslcommerzTransactionInput, Prisma.OrderUncheckedCreateWithoutSslcommerzTransactionInput>
+}
+
+export type OrderUpsertWithoutSslcommerzTransactionInput = {
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutSslcommerzTransactionInput, Prisma.OrderUncheckedUpdateWithoutSslcommerzTransactionInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutSslcommerzTransactionInput, Prisma.OrderUncheckedCreateWithoutSslcommerzTransactionInput>
+  where?: Prisma.OrderWhereInput
+}
+
+export type OrderUpdateToOneWithWhereWithoutSslcommerzTransactionInput = {
+  where?: Prisma.OrderWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutSslcommerzTransactionInput, Prisma.OrderUncheckedUpdateWithoutSslcommerzTransactionInput>
+}
+
+export type OrderUpdateWithoutSslcommerzTransactionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  shippingFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  tax?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  shippingMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutOrdersNestedInput
+  shippingAddress?: Prisma.AddressUpdateOneWithoutShippingOrdersNestedInput
+  billingAddress?: Prisma.AddressUpdateOneWithoutBillingOrdersNestedInput
+  items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
+  payment?: Prisma.PaymentUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutSslcommerzTransactionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orderNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  shippingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  shippingFee?: Prisma.FloatFieldUpdateOperationsInput | number
+  tax?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+  shippingMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carrier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimatedDelivery?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  customerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  payment?: Prisma.PaymentUncheckedUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderCreateManyUserInput = {
@@ -1338,6 +1488,7 @@ export type OrderUpdateWithoutUserInput = {
   billingAddress?: Prisma.AddressUpdateOneWithoutBillingOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutUserInput = {
@@ -1360,6 +1511,7 @@ export type OrderUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutUserInput = {
@@ -1442,6 +1594,7 @@ export type OrderUpdateWithoutShippingAddressInput = {
   billingAddress?: Prisma.AddressUpdateOneWithoutBillingOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutShippingAddressInput = {
@@ -1464,6 +1617,7 @@ export type OrderUncheckedUpdateWithoutShippingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutShippingAddressInput = {
@@ -1506,6 +1660,7 @@ export type OrderUpdateWithoutBillingAddressInput = {
   shippingAddress?: Prisma.AddressUpdateOneWithoutShippingOrdersNestedInput
   items?: Prisma.OrderItemUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutBillingAddressInput = {
@@ -1528,6 +1683,7 @@ export type OrderUncheckedUpdateWithoutBillingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutOrderNestedInput
+  sslcommerzTransaction?: Prisma.SSLCommerzTransactionUncheckedUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateManyWithoutBillingAddressInput = {
@@ -1605,6 +1761,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   billingAddress?: boolean | Prisma.Order$billingAddressArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
   payment?: boolean | Prisma.Order$paymentArgs<ExtArgs>
+  sslcommerzTransaction?: boolean | Prisma.Order$sslcommerzTransactionArgs<ExtArgs>
   _count?: boolean | Prisma.OrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
@@ -1684,6 +1841,7 @@ export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   billingAddress?: boolean | Prisma.Order$billingAddressArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
   payment?: boolean | Prisma.Order$paymentArgs<ExtArgs>
+  sslcommerzTransaction?: boolean | Prisma.Order$sslcommerzTransactionArgs<ExtArgs>
   _count?: boolean | Prisma.OrderCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1705,6 +1863,7 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     billingAddress: Prisma.$AddressPayload<ExtArgs> | null
     items: Prisma.$OrderItemPayload<ExtArgs>[]
     payment: Prisma.$PaymentPayload<ExtArgs> | null
+    sslcommerzTransaction: Prisma.$SSLCommerzTransactionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2124,6 +2283,7 @@ export interface Prisma__OrderClient<T, Null = never, ExtArgs extends runtime.Ty
   billingAddress<T extends Prisma.Order$billingAddressArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$billingAddressArgs<ExtArgs>>): Prisma.Prisma__AddressClient<runtime.Types.Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Order$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payment<T extends Prisma.Order$paymentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$paymentArgs<ExtArgs>>): Prisma.Prisma__PaymentClient<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sslcommerzTransaction<T extends Prisma.Order$sslcommerzTransactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$sslcommerzTransactionArgs<ExtArgs>>): Prisma.Prisma__SSLCommerzTransactionClient<runtime.Types.Result.GetResult<Prisma.$SSLCommerzTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2645,6 +2805,25 @@ export type Order$paymentArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.PaymentInclude<ExtArgs> | null
   where?: Prisma.PaymentWhereInput
+}
+
+/**
+ * Order.sslcommerzTransaction
+ */
+export type Order$sslcommerzTransactionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SSLCommerzTransaction
+   */
+  select?: Prisma.SSLCommerzTransactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SSLCommerzTransaction
+   */
+  omit?: Prisma.SSLCommerzTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SSLCommerzTransactionInclude<ExtArgs> | null
+  where?: Prisma.SSLCommerzTransactionWhereInput
 }
 
 /**
