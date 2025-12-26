@@ -8,15 +8,16 @@ const AppError_1 = __importDefault(require("../../helper/AppError"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const prisma_1 = require("../../lib/prisma");
 const payment_service_1 = require("./payment.service");
-// Create order from cart
 const createOrderController = async (req, res, next) => {
     try {
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
         if (!userId) {
             throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "User authentication required");
         }
+        if (!req.body.items || req.body.items.length === 0) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Cart items missing");
+        }
         const order = await payment_service_1.OrderPaymentService.createOrderFromCart(userId, req.body);
-        // If payment method is COD, return order directly
         if (req.body.paymentMethod === "CASH_ON_DELIVERY") {
             return res.status(http_status_codes_1.default.CREATED).json({
                 success: true,
@@ -24,7 +25,6 @@ const createOrderController = async (req, res, next) => {
                 data: { order }
             });
         }
-        // For online payments, initialize payment
         const paymentResult = await payment_service_1.OrderPaymentService.initOrderPayment(order.id, userId);
         res.status(http_status_codes_1.default.CREATED).json({
             success: true,
@@ -61,51 +61,102 @@ const initiatePaymentController = async (req, res, next) => {
         next(error);
     }
 };
-// // SSL Success Handler
-// const sslSuccessHandler = async (req: Request, res: Response, next: NextFunction) => {
-//     const transactionId = req.query.tran_id || req.query.transactionId;
-//     const orderId = req.query.value_a || req.query.orderId;
-//     const valId = req.query.val_id as string;
-//     const bankTransaction = req.query.bank_tran_id as string;
-//     if (!transactionId) {
-//         return res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?error=Missing transaction ID`);
-//     }
-//     try {
-//         await OrderPaymentService.processSuccessfulPayment(
-//             transactionId as string,
-//             valId,
-//             bankTransaction
-//         );
-//         return res.redirect(
-//             `${process.env.SSL_SUCCESS_FRONTEND_URL}?transactionId=${transactionId}&orderId=${orderId}`
-//         );
-//     } catch (error: any) {
-//         next(error);
-//         try {
-//             if (transactionId) {
-//                 await prisma.sSLCommerzTransaction.update({
-//                     where: { transactionId: transactionId as string },
-//                     data: { status: "FAILED", updatedAt: new Date() },
-//                 });
-//                 const transaction = await prisma.sSLCommerzTransaction.findUnique({
-//                     where: { transactionId: transactionId as string }
-//                 });
-//                 if (transaction?.orderId) {
-//                     await prisma.payment.update({
-//                         where: { orderId: transaction.orderId },
-//                         data: { status: "FAILED", updatedAt: new Date() },
-//                     });
-//                 }
-//             }
-//         } catch (dbError) {
-//             console.error("Database update error:", dbError);
-//         }
-//         const errorMessage = encodeURIComponent(error.message || "Payment processing failed");
-//         return res.redirect(
-//             `${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${transactionId}&error=${errorMessage}`
-//         );
-//     }
-// };
+// SSL Success Handler
+const sslSuccessHandler = async (req, res, next) => {
+    // Check BOTH naming conventions
+    const transactionId = req.query.tran_id || req.query.transactionId;
+    const orderId = req.query.value_a || req.query.orderId;
+    if (!transactionId) {
+        return res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?error=Missing transaction ID`);
+    }
+    try {
+        // 1️⃣ Find the transaction
+        const transaction = await prisma_1.prisma.sSLCommerzTransaction.findUnique({
+            where: {
+                transactionId: transactionId
+            },
+            include: {
+                order: {
+                    include: {
+                        payment: true
+                    }
+                }
+            },
+        });
+        if (!transaction || !transaction.order) {
+            console.log('❌ Transaction or booking not found:', transactionId);
+            return res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${transactionId}&error=Transaction not found`);
+        }
+        // Get bookingId from transaction if not in query
+        const actualOrderId = orderId || transaction.orderId;
+        console.log('🎯 Processing payment:', {
+            transactionId,
+            actualOrderId,
+            hasPayment: !!transaction.order.payment
+        });
+        // 2️⃣ For sandbox testing, skip verification
+        console.log('⚠️ Sandbox mode - processing without verification');
+        // Process payment without verification
+        await prisma_1.prisma.$transaction(async (tx) => {
+            // Update transaction
+            await tx.sSLCommerzTransaction.update({
+                where: { transactionId: transactionId },
+                data: {
+                    status: "SUCCESS",
+                    valId: "SANDBOX_TEST_" + Date.now(),
+                    bankTransaction: "SANDBOX_TEST_" + Date.now(),
+                    updatedAt: new Date()
+                },
+            });
+            // Update payment USING bookingId (not transactionId)
+            await tx.payment.update({
+                where: {
+                    orderId: actualOrderId
+                },
+                data: {
+                    status: "COMPLETED",
+                    updatedAt: new Date()
+                },
+            });
+            // Update booking
+            await tx.order.update({
+                where: { id: actualOrderId },
+                data: {
+                    status: "CONFIRMED",
+                    updatedAt: new Date()
+                },
+            });
+        });
+        return res.redirect(`${process.env.SSL_SUCCESS_FRONTEND_URL}?transactionId=${transactionId}&orderId=${actualOrderId}`);
+    }
+    catch (error) {
+        next(error);
+        // Update as failed
+        try {
+            if (transactionId) {
+                await prisma_1.prisma.sSLCommerzTransaction.update({
+                    where: { transactionId: transactionId },
+                    data: { status: "FAILED", updatedAt: new Date() },
+                });
+                // Try to find booking to update payment
+                const transaction = await prisma_1.prisma.sSLCommerzTransaction.findUnique({
+                    where: { transactionId: transactionId }
+                });
+                if (transaction?.orderId) {
+                    await prisma_1.prisma.payment.update({
+                        where: { orderId: transaction.orderId }, // Use bookingId
+                        data: { status: "FAILED", updatedAt: new Date() },
+                    });
+                }
+            }
+        }
+        catch (dbError) {
+            console.error("Database update error:", dbError);
+        }
+        const errorMessage = encodeURIComponent(error.message || "Payment processing failed");
+        return res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${transactionId}&error=${errorMessage}`);
+    }
+};
 // SSL Fail Handler
 const sslFailHandler = async (req, res) => {
     console.log("❌ SSL Fail Callback:", req.query);
@@ -197,7 +248,7 @@ const getOrderByIdController = async (req, res, next) => {
 exports.PaymentController = {
     createOrderController,
     initiatePaymentController,
-    // sslSuccessHandler,
+    sslSuccessHandler,
     sslCancelHandler,
     sslFailHandler,
     getUserOrdersController,

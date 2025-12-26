@@ -13,6 +13,7 @@ const router = express_1.default.Router();
 router.post("/create-order", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), payment_controller_1.PaymentController.createOrderController);
 // Initialize payment for existing order
 router.post("/initiate/:id", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), payment_controller_1.PaymentController.initiatePaymentController);
+router.post("/success", payment_controller_1.PaymentController.sslSuccessHandler);
 // Get user orders
 router.get("/my-orders", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), payment_controller_1.PaymentController.getUserOrdersController);
 // Get order by ID

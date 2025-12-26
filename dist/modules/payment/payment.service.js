@@ -17,32 +17,30 @@ const generateOrderNumber = () => {
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     return `ORD-${year}${month}${day}-${random}`;
 };
-// Create order from cart
+// Create order from frontend cart items
 const createOrderFromCart = async (userId, payload) => {
-    const { shippingAddressId, billingAddressId, customerNotes, shippingMethod, paymentMethod } = payload;
+    const { items, shippingAddressId, billingAddressId, customerNotes, shippingMethod = "STANDARD", paymentMethod = "SSL_COMMERZ" } = payload;
+    if (!items || items.length === 0) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Cart items are required");
+    }
     return await prisma_1.prisma.$transaction(async (tx) => {
-        // 1. Get user cart with items
-        const cart = await tx.cart.findUnique({
-            where: { userId },
-            include: {
-                items: {
-                    include: {
-                        product: true,
-                        cart: true
-                    }
-                }
+        /* --------------------------------
+           1. Validate products & stock
+        ----------------------------------*/
+        for (const item of items) {
+            const product = await tx.product.findUnique({
+                where: { id: item.productId }
+            });
+            if (!product) {
+                throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Product not found`);
             }
-        });
-        if (!cart || cart.items.length === 0) {
-            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Cart is empty");
-        }
-        // 2. Validate products stock
-        for (const item of cart.items) {
-            if (item.product.stock < item.quantity) {
-                throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Insufficient stock for ${item.product.name}. Available: ${item.product.stock}, Requested: ${item.quantity}`);
+            if (product.stock < item.quantity) {
+                throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, `Insufficient stock for ${product.name}. Available: ${product.stock}`);
             }
         }
-        // 3. Get address details
+        /* --------------------------------
+           2. Addresses
+        ----------------------------------*/
         let shippingAddress = null;
         let billingAddress = null;
         if (shippingAddressId) {
@@ -55,28 +53,23 @@ const createOrderFromCart = async (userId, payload) => {
                 where: { id: billingAddressId, userId }
             });
         }
-        // Use shipping address as billing address if not provided
         if (!billingAddress && shippingAddress) {
             billingAddress = shippingAddress;
         }
-        // 4. Calculate totals
-        const subtotal = cart.items.reduce((sum, item) => {
-            return sum + (item.product.price * item.quantity);
-        }, 0);
-        // Shipping calculation
+        /* --------------------------------
+           3. Totals calculation
+        ----------------------------------*/
+        const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         let shippingFee = 0;
-        if (shippingMethod === 'EXPRESS') {
+        if (shippingMethod === "EXPRESS")
             shippingFee = 120;
-        }
-        else if (shippingMethod === 'STANDARD') {
+        if (shippingMethod === "STANDARD")
             shippingFee = 60;
-        }
-        else if (shippingMethod === 'FREE') {
-            shippingFee = 0;
-        }
-        const tax = subtotal * 0.05; // 5% tax for Bangladesh
+        const tax = subtotal * 0.05; // 5%
         const totalAmount = subtotal + shippingFee + tax;
-        // 5. Create order
+        /* --------------------------------
+           4. Create order
+        ----------------------------------*/
         const order = await tx.order.create({
             data: {
                 orderNumber: generateOrderNumber(),
@@ -89,40 +82,34 @@ const createOrderFromCart = async (userId, payload) => {
                 discount: 0,
                 totalAmount,
                 status: "PENDING",
-                shippingMethod: shippingMethod || "STANDARD",
+                shippingMethod,
                 customerNotes,
                 items: {
-                    create: cart.items.map(item => ({
+                    create: items.map((item) => ({
                         productId: item.productId,
                         quantity: item.quantity,
-                        price: item.product.price,
-                        name: item.product.name,
-                        // Add variant support if needed
+                        price: item.price,
+                        name: item.name
                     }))
                 },
                 payment: {
                     create: {
                         amount: totalAmount,
-                        method: paymentMethod || "SSL_COMMERZ",
+                        method: paymentMethod,
                         status: "PENDING",
-                        transactionId: `PAY_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                        transactionId: `PAY_${Date.now()}_${Math.random().toString(36).slice(2)}`
                     }
                 }
             },
             include: {
-                items: {
-                    include: {
-                        product: true
-                    }
-                },
-                user: true,
-                payment: true,
-                shippingAddress: true,
-                billingAddress: true
+                items: true,
+                payment: true
             }
         });
-        // 6. Update product stock and order counts
-        for (const item of cart.items) {
+        /* --------------------------------
+           5. Update stock
+        ----------------------------------*/
+        for (const item of items) {
             await tx.product.update({
                 where: { id: item.productId },
                 data: {
@@ -131,11 +118,9 @@ const createOrderFromCart = async (userId, payload) => {
                 }
             });
         }
-        // 7. Clear cart
-        await tx.cartItem.deleteMany({
-            where: { cartId: cart.id }
-        });
-        // 8. If payment method is not online, mark as confirmed
+        /* --------------------------------
+           6. COD handling
+        ----------------------------------*/
         if (paymentMethod === "CASH_ON_DELIVERY") {
             await tx.payment.update({
                 where: { orderId: order.id },
