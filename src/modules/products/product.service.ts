@@ -2,7 +2,8 @@
 // creating product category
 
 import { deleteFromCloudinary } from "../../config/deleteFromCloudinary"
-import { Prisma } from "../../generated/client"
+import { Prisma, UserRole } from "../../generated/client"
+import AppError from "../../helper/AppError"
 import { prisma } from "../../lib/prisma"
 
 const createCategory = async (name: string) => {
@@ -21,36 +22,36 @@ const createCategory = async (name: string) => {
 
 const updateCategory = async (id: string, payload: Partial<Prisma.CategoryCreateInput>) => {
 
-    const result = await prisma.category.update({
-        where: { id },
-        data: payload
-    })
+  const result = await prisma.category.update({
+    where: { id },
+    data: payload
+  })
 
-    return result
+  return result
 }
 
 
 const getCategory = async () => {
 
-    const result = await prisma.category.findMany({
-      include:{
-        products:{
-          select:{
-            productImages:true 
-          }
+  const result = await prisma.category.findMany({
+    include: {
+      products: {
+        select: {
+          productImages: true
         }
       }
-    })
+    }
+  })
 
-    return result
+  return result
 }
 const deleteCategory = async (id: string) => {
 
-    const result = await prisma.category.delete({
-        where: { id }
-    })
+  const result = await prisma.category.delete({
+    where: { id }
+  })
 
-    return result
+  return result
 }
 
 
@@ -59,7 +60,7 @@ const createProduct = async (sellerId: string, payload: any) => {
   // Generate slug from title/name
   const baseSlug = payload.name.toLowerCase().split(" ").join("-");
   const uniqueSlug = await generateUniqueSlug(baseSlug);
-  
+
   // Extract necessary fields
   const {
     name,
@@ -122,10 +123,10 @@ const createProduct = async (sellerId: string, payload: any) => {
       variants: true,
       category: true,
       user: { // Changed from seller to user if using original schema
-        select: { 
+        select: {
           id: true,
-          name: true, 
-          profilePhoto: true 
+          name: true,
+          profilePhoto: true
         },
       },
     },
@@ -138,16 +139,16 @@ const createProduct = async (sellerId: string, payload: any) => {
 const generateUniqueSlug = async (baseSlug: string): Promise<string> => {
   let slug = baseSlug;
   let counter = 1;
-  
+
   while (true) {
     const existing = await prisma.product.findUnique({
       where: { slug },
     });
-    
+
     if (!existing) {
       return slug;
     }
-    
+
     slug = `${baseSlug}-${counter}`;
     counter++;
   }
@@ -205,30 +206,30 @@ const updateProduct = async (
     if (updateData[key] === undefined) delete updateData[key];
   });
 
- /** -----------------------------
- *  PRODUCT IMAGES (REPLACE MODE)
- * ----------------------------- */
-if (payload.productImagesToAdd?.length) {
-  // 1️⃣ Delete old images from Cloudinary
-  for (const img of existingProduct.productImages) {
-    try {
-      await deleteFromCloudinary(img.imageId);
-    } catch (err) {
-      console.error("Cloudinary delete failed:", err);
+  /** -----------------------------
+  *  PRODUCT IMAGES (REPLACE MODE)
+  * ----------------------------- */
+  if (payload.productImagesToAdd?.length) {
+    // 1️⃣ Delete old images from Cloudinary
+    for (const img of existingProduct.productImages) {
+      try {
+        await deleteFromCloudinary(img.imageId);
+      } catch (err) {
+        console.error("Cloudinary delete failed:", err);
+      }
     }
-  }
 
-  // 2️⃣ Replace DB images
-  updateData.productImages = {
-    deleteMany: {}, // delete ALL old images
-    createMany: {
-      data: payload.productImagesToAdd.map((img: any) => ({
-        imageUrl: img.imageUrl,
-        imageId: img.imageId,
-      })),
-    },
-  };
-}
+    // 2️⃣ Replace DB images
+    updateData.productImages = {
+      deleteMany: {}, // delete ALL old images
+      createMany: {
+        data: payload.productImagesToAdd.map((img: any) => ({
+          imageUrl: img.imageUrl,
+          imageId: img.imageId,
+        })),
+      },
+    };
+  }
 
 
   /** -----------------------------
@@ -358,59 +359,105 @@ const getProduct = async ({
 
 
 const getSingleProduct = async (slug: string) => {
-    const product = await prisma.product.findUniqueOrThrow({
-        where: { slug },
-        include:{
-            productImages: true
-        }
-    })
+  const product = await prisma.product.findUniqueOrThrow({
+    where: { slug },
+    include: {
+      productImages: true
+    }
+  })
 
-    return product
+  return product
 }
 
 
-const deleteProduct = async(id:string)=>{
-    const product = await prisma.product.findFirstOrThrow({
-        where:{id},
-        include:{
-            productImages:true
-        }
-    })
-
-
-    if(product.productImages.length > 0){
-        for(const image of product.productImages){
-            try {
-                await deleteFromCloudinary(image.imageId as string)
-                console.log(image.imageId)
-            } catch (error) {
-                console.log(error)
-            }
-        }
+const deleteProduct = async (id: string) => {
+  const product = await prisma.product.findFirstOrThrow({
+    where: { id },
+    include: {
+      productImages: true
     }
+  })
 
 
-    for(const image of product.productImages){
-        const imageId = image.imageId
-        try {
-            await deleteFromCloudinary(imageId as string)
-        } catch (error) {
-            console.log(error)
-        }
+  if (product.productImages.length > 0) {
+    for (const image of product.productImages) {
+      try {
+        await deleteFromCloudinary(image.imageId as string)
+        console.log(image.imageId)
+      } catch (error) {
+        console.log(error)
+      }
     }
+  }
 
 
-    await prisma.productImage.deleteMany({
-        where:{productId:id}
-    })
+  for (const image of product.productImages) {
+    const imageId = image.imageId
+    try {
+      await deleteFromCloudinary(imageId as string)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
 
-    const result = await prisma.product.delete({where:{id}})
+  await prisma.productImage.deleteMany({
+    where: { productId: id }
+  })
+
+
+  const result = await prisma.product.delete({ where: { id } })
 
 
 
-    return result
+  return result
 }
+
+
+const getMyProducts = async (guideId: string) => {
+  const tour = await prisma.product.findMany({
+    where: { userId: guideId },
+    include: {
+      productImages: true,
+      user: true,
+      orderItems: true,
+    },
+    orderBy: { createdAt: "desc" }
+  });
+
+
+
+  return tour
+
+};
+
+const togglePorductStatus = async (
+  productId: string,
+  requester: { id: string; userRole: string }
+) => {
+  const product = await prisma.product.findUnique({ where: { id: productId } });
+
+  if (!product) throw new AppError(404, "Tour not found");
+
+  console.log("request role", product.userId)
+  console.log("request role", requester.id)
+
+  const isOwner = product.userId === requester.id;
+  const isAdmin = requester.userRole === UserRole.ADMIN;
+
+  if (!isOwner && !isAdmin) {
+    throw new AppError(403, "You are not allowed to update this tour");
+  }
+
+  const newStatus = product.isActive === true ? false : true;
+
+  const updatedTour = await prisma.product.update({
+    where: { id: productId },
+    data: { isActive: newStatus as boolean },
+  });
+
+  return updatedTour;
+};
 
 
 
@@ -420,6 +467,8 @@ export const productService = {
   getProduct,
   deleteProduct,
   getSingleProduct,
+  getMyProducts,
+  togglePorductStatus,
   createCategory,
   updateCategory,
   getCategory,

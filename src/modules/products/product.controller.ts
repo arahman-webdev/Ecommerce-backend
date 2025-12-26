@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { productService } from "./product.service";
 import { uploadToCloudinary } from "../../config/uploadToCloudinary";
 import HTTP_STATUS from "http-status-codes"
+import AppError from "../../helper/AppError";
+import { UserRole } from "../../generated/enums";
 // Creating product category
 
 const createCategory = async (
@@ -33,48 +35,48 @@ const createCategory = async (
 
 
 const updateCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await productService.updateCategory(req.params.id, req.body)
+  try {
+    const result = await productService.updateCategory(req.params.id, req.body)
 
-        res.status(201).json({
-            success: true,
-            message: "Updated Successfully",
-            data: result
-        })
-    } catch (err) {
-        console.log(err)
-        next(err)
-    }
+    res.status(201).json({
+      success: true,
+      message: "Updated Successfully",
+      data: result
+    })
+  } catch (err) {
+    console.log(err)
+    next(err)
+  }
 }
 
 
 const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await productService.deleteCategory(req.params.id)
+  try {
+    const result = await productService.deleteCategory(req.params.id)
 
-        res.status(201).json({
-            success: true,
-            message: "Deleted Successfully",
-            data: result
-        })
-    } catch (err) {
-        console.log(err)
-        next(err)
-    }
+    res.status(201).json({
+      success: true,
+      message: "Deleted Successfully",
+      data: result
+    })
+  } catch (err) {
+    console.log(err)
+    next(err)
+  }
 }
 const getCategory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await productService.getCategory()
+  try {
+    const result = await productService.getCategory()
 
-        res.status(201).json({
-            success: true,
-            message: "Retrived Successfully",
-            data: result
-        })
-    } catch (err) {
-        console.log(err)
-        next(err)
-    }
+    res.status(201).json({
+      success: true,
+      message: "Retrived Successfully",
+      data: result
+    })
+  } catch (err) {
+    console.log(err)
+    next(err)
+  }
 }
 
 
@@ -149,7 +151,7 @@ const createProduct = async (req: Request & { user?: any }, res: Response, next:
     });
   } catch (error: any) {
     console.error("Product creation error:", error);
-    
+
     // Handle Prisma unique constraint error (duplicate slug)
     if (error.code === 'P2002') {
       return res.status(400).json({
@@ -157,7 +159,7 @@ const createProduct = async (req: Request & { user?: any }, res: Response, next:
         message: "A product with similar details already exists",
       });
     }
-    
+
     next(error);
   }
 };
@@ -167,10 +169,10 @@ const updateProduct = async (req: Request & { user?: any }, res: Response, next:
   try {
     const sellerId = req.user.userId;
     const productId = req.params.id;
-    
+
     // Parse form data
     const data = req.body.data ? JSON.parse(req.body.data) : {};
-    
+
     // Handle new image uploads
     const newImages: any[] = [];
     if (req.files && Array.isArray(req.files)) {
@@ -191,8 +193,8 @@ const updateProduct = async (req: Request & { user?: any }, res: Response, next:
     let variants = [];
     if (data.variants) {
       try {
-        variants = typeof data.variants === 'string' 
-          ? JSON.parse(data.variants) 
+        variants = typeof data.variants === 'string'
+          ? JSON.parse(data.variants)
           : data.variants;
       } catch (e) {
         variants = [];
@@ -220,17 +222,17 @@ const updateProduct = async (req: Request & { user?: any }, res: Response, next:
       averageRating: data.averageRating ? Number(data.averageRating) : undefined,
       reviewCount: data.reviewCount ? Number(data.reviewCount) : undefined,
       totalOrders: data.totalOrders ? Number(data.totalOrders) : undefined,
-      
+
       // Handle dimensions
       weight: data.weight !== undefined ? (data.weight ? Number(data.weight) : null) : undefined,
       width: data.width !== undefined ? (data.width ? Number(data.width) : null) : undefined,
       height: data.height !== undefined ? (data.height ? Number(data.height) : null) : undefined,
       length: data.length !== undefined ? (data.length ? Number(data.length) : null) : undefined,
-      
+
       // Handle images
       productImagesToAdd: newImages.length > 0 ? newImages : undefined,
       productImagesToDelete: imagesToDelete.length > 0 ? imagesToDelete : undefined,
-      
+
       // Handle variants
       variants: variants.length > 0 ? variants : undefined,
     };
@@ -251,21 +253,21 @@ const updateProduct = async (req: Request & { user?: any }, res: Response, next:
     });
   } catch (error: any) {
     console.error("Product update error:", error);
-    
+
     if (error.message === 'Product not found or unauthorized') {
       return res.status(404).json({
         success: false,
         message: error.message,
       });
     }
-    
+
     if (error.code === 'P2002') {
       return res.status(400).json({
         success: false,
         message: "A product with similar details already exists",
       });
     }
-    
+
     next(error);
   }
 };
@@ -312,42 +314,103 @@ const getProduct = async (req: Request, res: Response, next: NextFunction) => {
 
 
 const getSingleProduct = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await productService.getSingleProduct(req.params.slug)
-        console.log(result)
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: "Product retrieved successfully",
-            data: result,
-        })
-    } catch (error) {
-        next(error)
-    }
+  try {
+    const result = await productService.getSingleProduct(req.params.slug)
+    console.log(result)
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Product retrieved successfully",
+      data: result,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
 
 const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const result = await productService.deleteProduct(req.params.id)
-        console.log(result)
-        res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: "Product deleted successfully",
-            data: result,
-        })
-    } catch (error) {
-        next(error)
-    }
+  try {
+    const result = await productService.deleteProduct(req.params.id)
+    console.log(result)
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Product deleted successfully",
+      data: result,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
+
+const getMyProducts = async (
+  req: Request & { user?: { userId: string; userRole: string } },
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.userId;
+    const role = req.user?.userRole;
+
+    console.log("from my-tour", userId)
+
+    if (!userId) {
+      throw new AppError(401, "Unauthorized");
+    }
+
+    // Only guide can access this route
+    if (role !== UserRole.SELLER) {
+      throw new AppError(403, "Only guides can view their tours");
+    }
+
+    const result = await productService.getMyProducts(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "My tours fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const togglePorductStatus = async (
+  req: Request & { user?: { userId: string; userRole: string } },
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const tourId = req.params.id;
+    const user = req.user;
+
+    if (!user) throw new AppError(401, "Unauthorized");
+
+    const result = await productService.togglePorductStatus(tourId, {
+      id: user.userId,
+      userRole: user.userRole,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Tour ${result.isActive} successfully`,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const productController = {
-    createProduct,
-    updateProduct,
-    getProduct,
-    getSingleProduct,
-    deleteProduct,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    getCategory
+  createProduct,
+  updateProduct,
+  getProduct,
+  getSingleProduct,
+  deleteProduct,
+  getMyProducts,
+  togglePorductStatus,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getCategory
 }

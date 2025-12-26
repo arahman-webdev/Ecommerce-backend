@@ -23,8 +23,12 @@ router.put('/category/:id', productController.updateCategory)
 router.post('/create', checkAuth(UserRole.SELLER), upload.array('images'), productController.createProduct)
 router.put('/:id', checkAuth(UserRole.SELLER), upload.array('images'), productController.updateProduct)
 router.get('/', productController.getProduct)
+router.get("/my-tours",checkAuth(UserRole.SELLER),productController.getMyProducts);
+router.patch("/toggle-status/:id",checkAuth(UserRole.SELLER, UserRole.ADMIN),productController.togglePorductStatus);
 router.get('/:slug', productController.getSingleProduct)
 router.delete('/:id', checkAuth(UserRole.SELLER, UserRole.ADMIN), productController.deleteProduct)
+
+
 
 
 export const productRouter = router
