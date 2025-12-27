@@ -21,6 +21,13 @@ const getUserOrders = async (userId: string) => {
           variant: true
         }
       },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
       payment: true,
       shippingAddress: true,
       billingAddress: true
@@ -69,7 +76,7 @@ const getOrderById = async (orderId: string, userId: string) => {
 const getAllOrders = async () => {
   return prisma.order.findMany({
     include: {
-      
+
       items: {
         include: {
           product: {
@@ -77,7 +84,7 @@ const getAllOrders = async () => {
               productImages: true
             }
           },
-          
+
         }
       },
       user: {
@@ -103,9 +110,9 @@ const deleteOrder = async (
   const order = await prisma.order.findUnique({
     where: { id: productId },
     include: {
-      items:{
-        include:{
-          product:true
+      items: {
+        include: {
+          product: true
         }
       },
       user: true
@@ -135,7 +142,7 @@ const deleteOrder = async (
 // get order for seller
 
 const getSellerOrders = async (userId: string) => {
-    console.log("forn seller", userId)
+  console.log("forn seller", userId)
   const orders = await prisma.order.findMany({
     where: {
       items: {

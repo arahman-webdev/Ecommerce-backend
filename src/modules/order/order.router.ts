@@ -8,7 +8,7 @@ const router = express.Router();
 /* ---------------- ADMIN ---------------- */
 router.get(
   "/",
-  checkAuth(UserRole.ADMIN),
+ 
   OrderController.getAllOrders
 );
 
