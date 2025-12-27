@@ -8,6 +8,7 @@ import globalErrorHandler from "./middleware/globalErrorHandler";
 import { productRouter } from "./modules/products/product.router";
 import { wishlistRouter } from "./modules/wishlist/wishlist.router";
 import { paymentRoutes } from "./modules/payment/payment.router";
+import { orderRoutes } from "./modules/order/order.router";
 
 
 // import { randomBytes } from "crypto";
@@ -46,6 +47,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/product', productRouter)
 app.use('/api/product', wishlistRouter)
 app.use('/api/payment', paymentRoutes)
+app.use('/api/payment', orderRoutes)
 // app.use('/api/tour', tourRoutes)
 // app.use('/api/wishlist', wishlistRouter)
 // app.use('/api/bookings', bookingRoutes)

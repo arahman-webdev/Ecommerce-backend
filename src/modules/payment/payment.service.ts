@@ -2,6 +2,7 @@ import httpStatus from "http-status-codes";
 import { prisma } from "../../lib/prisma";
 import AppError from "../../helper/AppError";
 import { sslPaymentInit } from "../sslPayment/sslPayment.service";
+import { UserRole } from "../../generated/enums";
 
 // Generate unique order number
 const generateOrderNumber = () => {
@@ -343,101 +344,13 @@ const initOrderPayment = async (orderId: string, userId: string) => {
 //     });
 // };
 
-// Get user orders
-const getUserOrders = async (userId: string) => {
-  return await prisma.order.findMany({
-    where: { userId },
-    include: {
-      items: {
-        include: {
-          product: {
-            include: {
-              productImages: true
-            }
-          },
-          variant: true
-        }
-      },
-      payment: true,
-      shippingAddress: true,
-      billingAddress: true
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  });
-};
-
-// Get order by ID
-const getOrderById = async (orderId: string, userId: string) => {
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    include: {
-      items: {
-        include: {
-          product: {
-            include: {
-              productImages: true
-            }
-          },
-          variant: true
-        }
-      },
-      payment: true,
-      shippingAddress: true,
-      billingAddress: true,
-      user: true
-    }
-  });
-
-  if (!order) {
-    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
-  }
-
-  // Check if user owns this order or is admin
-  if (order.userId !== userId) {
-    throw new AppError(httpStatus.FORBIDDEN, "Access denied");
-  }
-
-  return order;
-};
 
 
-const getAllOrders = async () => {
-  return prisma.order.findMany({
-    include: {
-      
-      items: {
-        include: {
-          product: {
-            include: {
-              productImages: true
-            }
-          },
-          
-        }
-      },
-      user: {
-        select: {
-          name: true,
-          email: true,
-        },
-
-      },
-      payment: true,
-
-
-    },
-    orderBy: { createdAt: "desc" },
-  });
-};
 
 export const OrderPaymentService = {
   createOrderFromCart,
   initOrderPayment,
-  getAllOrders,
-  getUserOrders,
-  getOrderById
+  
 };
 
 

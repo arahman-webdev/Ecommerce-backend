@@ -338,7 +338,7 @@ const getProduct = async ({
         [sortBy]: orderBy,
       },
       include: {
-        user: { select: { name: true, profilePhoto: true } },
+        user: { select: { name: true, profilePhoto: true, email:true } },
         productImages: true,
         category: true,
       },
@@ -407,20 +407,21 @@ const deleteProduct = async (productId: string, requester: { id: string, userRol
 
   
 
-const getMyProducts = async (guideId: string) => {
-  const tour = await prisma.product.findMany({
-    where: { userId: guideId },
+const getMyProducts = async (productId: string) => {
+  const product = await prisma.product.findMany({
+    where: { userId: productId },
     include: {
       productImages: true,
       user: true,
       orderItems: true,
+      category:true
     },
     orderBy: { createdAt: "desc" }
   });
 
 
 
-  return tour
+  return product
 
 };
 
@@ -444,12 +445,12 @@ const togglePorductStatus = async (
 
   const newStatus = product.isActive === true ? false : true;
 
-  const updatedTour = await prisma.product.update({
+  const updatedProduct = await prisma.product.update({
     where: { id: productId },
     data: { isActive: newStatus as boolean },
   });
 
-  return updatedTour;
+  return updatedProduct;
 };
 
 

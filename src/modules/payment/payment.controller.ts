@@ -255,70 +255,9 @@ const sslCancelHandler = async (req: Request, res: Response) => {
     return res.redirect(`${process.env.SSL_CANCEL_FRONTEND_URL}?transactionId=${transactionId}`);
 };
 
-// Get user orders
-const getUserOrdersController = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
-    try {
-        const userId = req.user?.id;
-
-        if (!userId) {
-            throw new AppError(httpStatus.UNAUTHORIZED, "User authentication required");
-        }
-
-        const orders = await OrderPaymentService.getUserOrders(userId);
-
-        res.status(httpStatus.OK).json({
-            success: true,
-            message: "Orders fetched successfully",
-            data: orders
-        });
-
-    } catch (error) {
-        next(error);
-    }
-};
-
-// Get order by ID
-const getOrderByIdController = async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
-    try {
-        const orderId = req.params.id;
-        const userId = req.user?.id;
-
-        if (!orderId) {
-            throw new AppError(httpStatus.BAD_REQUEST, "Order ID is required");
-        }
-
-        if (!userId) {
-            throw new AppError(httpStatus.UNAUTHORIZED, "User authentication required");
-        }
-
-        const order = await OrderPaymentService.getOrderById(orderId, userId);
-
-        res.status(httpStatus.OK).json({
-            success: true,
-            message: "Order fetched successfully",
-            data: order
-        });
-
-    } catch (error) {
-        next(error);
-    }
-};
 
 
 
-const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const bookings = await OrderPaymentService.getAllOrders();
-
-        res.status(200).json({
-            success: true,
-            message: "All orders retrieved successfully",
-            data: bookings,
-        });
-    } catch (error) {
-        next(error);
-    }
-}
 
 export const PaymentController = {
     createOrderController,
@@ -326,7 +265,5 @@ export const PaymentController = {
     sslSuccessHandler,
     sslCancelHandler,
     sslFailHandler,
-    getUserOrdersController,
-    getOrderByIdController,
-    getAllOrders
+
 };
