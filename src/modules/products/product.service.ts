@@ -363,7 +363,8 @@ const getSingleProduct = async (slug: string) => {
   const product = await prisma.product.findUniqueOrThrow({
     where: { slug },
     include: {
-      productImages: true
+      productImages: true,
+      category:true
     }
   })
 

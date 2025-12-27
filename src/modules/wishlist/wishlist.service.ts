@@ -1,67 +1,98 @@
 import AppError from "../../helper/AppError";
 import { prisma } from "../../lib/prisma";
-import statusCode from "http-status-codes"
+import statusCode from "http-status-codes";
 
+const addToWishlist = async (userId: string, productId: string) => {
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+  });
 
-    // Add tour to wishlist
-  const addToWishlist =  async (userId: string, productId: string)=> {
-        // Check tour exists
-        const tour = await prisma.product.findUnique({ where: { id: productId } });
-        if (!tour) throw new AppError(404, "Product not found");
+  if (!product) {
+    throw new AppError(404, "Product not found");
+  }
 
-        const isTourWishlist = await prisma.wishlist.findUnique({
-            where:{id:productId}
-        })
+  const existing = await prisma.wishlist.findUnique({
+    where: {
+      userId_productId: {
+        userId,
+        productId,
+      },
+    },
+  });
 
-        if(isTourWishlist){
-            throw new AppError(statusCode.CONFLICT, "This tour is already added to favorite")
-        }
+  if (existing) {
+    throw new AppError(
+      statusCode.CONFLICT,
+      "Product already in wishlist"
+    );
+  }
 
-        // Create wishlist entry
-        const favorite = await prisma.wishlist.create({
-            data: { userId, productId },
-            include: { product: true },
-        });
+  return prisma.wishlist.create({
+    data: { userId, productId },
+    include: {
+      product: {
+        include: {
+          productImages: true,
+        },
+      },
+    },
+  });
+};
 
-        return favorite;
-    }
+const removeFromWishlist = async (userId: string, productId: string) => {
+  const existing = await prisma.wishlist.findUnique({
+    where: {
+      userId_productId: {
+        userId,
+        productId,
+      },
+    },
+  });
 
-    // Remove from wishlist
-   const removeFromWishlist=  async (userId: string, productId: string)=> {
-        const existing = await prisma.wishlist.findUnique({
-            where: { userId_productId: { userId, productId } },
-        });
+  if (!existing) {
+    throw new AppError(400, "Product not in wishlist");
+  }
 
-        if (!existing) throw new AppError(400, "Tour not in wishlist");
+  await prisma.wishlist.delete({
+    where: {
+      userId_productId: {
+        userId,
+        productId,
+      },
+    },
+  });
 
-        await prisma.wishlist.delete({
-            where: { userId_productId: { userId, productId } },
-        });
+  return { message: "Removed from wishlist" };
+};
 
-        return { message: "Removed from wishlist" };
-    }
-
-    // Get all wishlist items
- const getWishlist = async (userId: string)=> {
-        const items = await prisma.wishlist.findMany({
-            where: { userId },
-            include: {
-                product: {
-                    include: {
-                        productImages: true,
-                        user: { select: { name: true, profilePhoto: true } },
-                    },
-                },
+const getWishlist = async (userId: string) => {
+  return prisma.wishlist.findMany({
+    where: {
+      userId,
+      product: {
+        isActive: true, // ✅ only active products
+      },
+    },
+    include: {
+      product: {
+        include: {
+          productImages: true,
+          user: {
+            select: {
+              name: true,
+              profilePhoto: true,
             },
-            orderBy: { createdAt: "desc" },
-        });
-
-        return items;
-    }
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+};
 
 
 export const ProductWishlistService = {
-    addToWishlist,
-    removeFromWishlist,
-    getWishlist
-}
+  addToWishlist,
+  removeFromWishlist,
+  getWishlist,
+};

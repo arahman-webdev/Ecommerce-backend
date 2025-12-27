@@ -45,6 +45,7 @@ app.use(cookieParser());
 app.use('/api/auth', userRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/product', productRouter)
+app.use('/api/wishlist', wishlistRouter)
 app.use('/api/product', wishlistRouter)
 app.use('/api/payment', paymentRoutes)
 app.use('/api/order', orderRoutes)
