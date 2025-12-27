@@ -1,7 +1,11 @@
-import { UserRole } from "../../generated/enums";
+import { OrderStatus, UserRole } from "../../generated/enums";
 import AppError from "../../helper/AppError";
 import { prisma } from "../../lib/prisma";
 import httpStatus from "http-status-codes"
+
+
+
+
 // Get user orders
 const getUserOrders = async (userId: string) => {
   return await prisma.order.findMany({
@@ -130,13 +134,14 @@ const deleteOrder = async (
 
 // get order for seller
 
-const getSellerOrders = async (sellerId: string) => {
+const getSellerOrders = async (userId: string) => {
+    console.log("forn seller", userId)
   const orders = await prisma.order.findMany({
     where: {
       items: {
         some: {
           product: {
-            userId: sellerId, // ✅ seller owns the product
+            userId: userId, // ✅ seller owns the product
           },
         },
       },
@@ -145,7 +150,7 @@ const getSellerOrders = async (sellerId: string) => {
       items: {
         where: {
           product: {
-            userId: sellerId, // ✅ only seller’s items
+            userId: userId, // ✅ only seller’s items
           },
         },
         include: {
@@ -178,11 +183,69 @@ const getSellerOrders = async (sellerId: string) => {
 
 
 
+const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+  });
+
+  if (!order) {
+    throw new AppError(404, "Order not found");
+  }
+
+  const current = order.status;
+
+  // No change
+  if (current === status) return order;
+
+  // Final states
+  if (current === "DELIVERED" || current === "CANCELLED") {
+    throw new AppError(400, "Order status cannot be updated");
+  }
+
+  // PENDING rules
+  if (current === "PENDING") {
+    if (!["PROCESSING", "CANCELLED"].includes(status)) {
+      throw new AppError(
+        400,
+        "Pending orders can go to PROCESSING or CANCELLED"
+      );
+    }
+  }
+
+  // PROCESSING rules
+  if (current === "PROCESSING") {
+    if (!["SHIPPED", "CANCELLED"].includes(status)) {
+      throw new AppError(
+        400,
+        "Processing orders can go to SHIPPED or CANCELLED"
+      );
+    }
+  }
+
+  // SHIPPED rules
+  if (current === "SHIPPED") {
+    if (status !== "DELIVERED") {
+      throw new AppError(
+        400,
+        "Shipped orders can only be DELIVERED"
+      );
+    }
+  }
+
+  return prisma.order.update({
+    where: { id: orderId },
+    data: { status },
+  });
+};
+
+
+
 
 export const OrderService = {
   getAllOrders,
   deleteOrder,
   getUserOrders,
   getOrderById,
-  getSellerOrders
+  getSellerOrders,
+  updateOrderStatus
 };

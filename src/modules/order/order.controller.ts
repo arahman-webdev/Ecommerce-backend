@@ -96,13 +96,15 @@ const deleteOrder = async (
 
 // for seller
 
-const getMyProductOrders = async (
+const getSellerOrders = async (
   req: Request & { user?: any },
   res: Response,
   next: NextFunction
 ) => {
   try {
     const sellerId = req.user.userId; // from auth middleware
+
+    console.log("SELLERID", sellerId)
 
     const orders = await OrderService.getSellerOrders(sellerId);
 
@@ -115,11 +117,29 @@ const getMyProductOrders = async (
   }
 };
 
+const updateOrderStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    const updated = await OrderService.updateOrderStatus(orderId, status);
+
+    res.status(200).json({
+      success: true,
+      message: "Order status updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const OrderController = {
     getUserOrdersController,
     getOrderByIdController,
     getAllOrders,
     deleteOrder,
-    getMyProductOrders
+    getSellerOrders,
+    updateOrderStatus
 
 };
