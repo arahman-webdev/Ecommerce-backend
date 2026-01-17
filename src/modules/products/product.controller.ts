@@ -290,6 +290,12 @@ const getProduct = async (req: Request, res: Response, next: NextFunction) => {
       ? Number(req.query.maxPrice)
       : undefined
 
+    // ⭐ Featured filter
+    const isFeatured =
+      req.query.isFeatured !== undefined
+        ? req.query.isFeatured === "true"
+        : undefined
+
     const result = await productService.getProduct({
       page,
       limit,
@@ -299,6 +305,7 @@ const getProduct = async (req: Request, res: Response, next: NextFunction) => {
       maxPrice,
       sortBy,
       orderBy,
+      isFeatured, // ✅ PASS HERE
     })
 
     res.status(200).json({

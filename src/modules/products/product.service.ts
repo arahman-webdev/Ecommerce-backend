@@ -30,21 +30,43 @@ const updateCategory = async (id: string, payload: Partial<Prisma.CategoryCreate
   return result
 }
 
-
 const getCategory = async () => {
-
-  const result = await prisma.category.findMany({
-    include: {
-      products: {
+  const categories = await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+      _count: {
         select: {
-          productImages: true
-        }
-      }
-    }
-  })
+          products: true,
+        },
+      },
+      products: {
+        take: 1, // 👈 only ONE product
+        orderBy: {
+          createdAt: 'desc', // latest product (or popular later)
+        },
+        select: {
+          productImages: {
+            take: 1, // 👈 only ONE image
+            select: {
+              imageUrl: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
-  return result
-}
+  return categories.map(category => ({
+    id: category.id,
+    name: category.name,
+    productCount: category._count.products,
+    image:
+      category.products[0]?.productImages[0]?.imageUrl || null,
+  }));
+};
+
+
 const deleteCategory = async (id: string) => {
 
   const result = await prisma.category.delete({
@@ -284,6 +306,7 @@ const getProduct = async ({
   maxPrice,
   orderBy = "asc",
   sortBy = "createdAt",
+  isFeatured, // ✅ NEW
 }: {
   page: number
   limit: number
@@ -293,6 +316,7 @@ const getProduct = async ({
   maxPrice?: number
   orderBy?: "asc" | "desc"
   sortBy?: "price" | "averageRating" | "createdAt" | "name"
+  isFeatured?: boolean // ✅ NEW
 }) => {
   const skip = (page - 1) * limit
 
@@ -317,16 +341,21 @@ const getProduct = async ({
   }
 
   // 💰 Filter by price
-  if (minPrice || maxPrice) {
+  if (minPrice !== undefined || maxPrice !== undefined) {
     where.price = {}
 
-    if (minPrice) {
+    if (minPrice !== undefined) {
       where.price.gte = minPrice
     }
 
-    if (maxPrice) {
+    if (maxPrice !== undefined) {
       where.price.lte = maxPrice
     }
+  }
+
+  // ⭐ Filter by featured products
+  if (isFeatured !== undefined) {
+    where.isFeatured = isFeatured
   }
 
   const [products, total] = await Promise.all([
@@ -338,7 +367,7 @@ const getProduct = async ({
         [sortBy]: orderBy,
       },
       include: {
-        user: { select: { name: true, profilePhoto: true, email:true } },
+        user: { select: { name: true, profilePhoto: true, email: true } },
         productImages: true,
         category: true,
       },

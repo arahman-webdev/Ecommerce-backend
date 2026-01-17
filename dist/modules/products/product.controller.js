@@ -7,6 +7,8 @@ exports.productController = void 0;
 const product_service_1 = require("./product.service");
 const uploadToCloudinary_1 = require("../../config/uploadToCloudinary");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
+const AppError_1 = __importDefault(require("../../helper/AppError"));
+const enums_1 = require("../../generated/enums");
 // Creating product category
 const createCategory = async (req, res, next) => {
     try {
@@ -260,6 +262,10 @@ const getProduct = async (req, res, next) => {
         const maxPrice = req.query.maxPrice
             ? Number(req.query.maxPrice)
             : undefined;
+        // ⭐ Featured filter
+        const isFeatured = req.query.isFeatured !== undefined
+            ? req.query.isFeatured === "true"
+            : undefined;
         const result = await product_service_1.productService.getProduct({
             page,
             limit,
@@ -269,6 +275,7 @@ const getProduct = async (req, res, next) => {
             maxPrice,
             sortBy,
             orderBy,
+            isFeatured, // ✅ PASS HERE
         });
         res.status(200).json({
             success: true,
@@ -296,11 +303,63 @@ const getSingleProduct = async (req, res, next) => {
 };
 const deleteProduct = async (req, res, next) => {
     try {
-        const result = await product_service_1.productService.deleteProduct(req.params.id);
-        console.log(result);
-        res.status(http_status_codes_1.default.OK).json({
+        const tourId = req.params.id;
+        if (!req.user) {
+            throw new AppError_1.default(401, "Unauthorized");
+        }
+        // requester object EXACT structure required by service
+        const requester = {
+            id: req.user.userId,
+            userRole: req.user.userRole,
+        };
+        console.log("from tour controler ", requester);
+        const result = await product_service_1.productService.deleteProduct(tourId, requester);
+        res.status(200).json({
             success: true,
-            message: "Product deleted successfully",
+            message: "Tour deleted successfully",
+            data: result,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+const getMyProducts = async (req, res, next) => {
+    try {
+        const userId = req.user?.userId;
+        const role = req.user?.userRole;
+        console.log("from my-tour", userId);
+        if (!userId) {
+            throw new AppError_1.default(401, "Unauthorized");
+        }
+        // Only guide can access this route
+        if (role !== enums_1.UserRole.SELLER) {
+            throw new AppError_1.default(403, "Only guides can view their tours");
+        }
+        const result = await product_service_1.productService.getMyProducts(userId);
+        res.status(200).json({
+            success: true,
+            message: "My tours fetched successfully",
+            data: result,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+const togglePorductStatus = async (req, res, next) => {
+    try {
+        const tourId = req.params.id;
+        const user = req.user;
+        if (!user)
+            throw new AppError_1.default(401, "Unauthorized");
+        const result = await product_service_1.productService.togglePorductStatus(tourId, {
+            id: user.userId,
+            userRole: user.userRole,
+        });
+        res.status(200).json({
+            success: true,
+            message: `Tour ${result.isActive} successfully`,
             data: result,
         });
     }
@@ -314,6 +373,8 @@ exports.productController = {
     getProduct,
     getSingleProduct,
     deleteProduct,
+    getMyProducts,
+    togglePorductStatus,
     createCategory,
     updateCategory,
     deleteCategory,

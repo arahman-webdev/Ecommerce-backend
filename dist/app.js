@@ -13,6 +13,7 @@ const globalErrorHandler_1 = __importDefault(require("./middleware/globalErrorHa
 const product_router_1 = require("./modules/products/product.router");
 const wishlist_router_1 = require("./modules/wishlist/wishlist.router");
 const payment_router_1 = require("./modules/payment/payment.router");
+const order_router_1 = require("./modules/order/order.router");
 // import { randomBytes } from "crypto";
 exports.app = (0, express_1.default)();
 const corsOptions = {
@@ -38,8 +39,10 @@ exports.app.use((0, cookie_parser_1.default)());
 exports.app.use('/api/auth', user_router_1.userRoutes);
 exports.app.use('/api/auth', auth_router_1.authRoutes);
 exports.app.use('/api/product', product_router_1.productRouter);
+exports.app.use('/api/wishlist', wishlist_router_1.wishlistRouter);
 exports.app.use('/api/product', wishlist_router_1.wishlistRouter);
 exports.app.use('/api/payment', payment_router_1.paymentRoutes);
+exports.app.use('/api/order', order_router_1.orderRoutes);
 // app.use('/api/tour', tourRoutes)
 // app.use('/api/wishlist', wishlistRouter)
 // app.use('/api/bookings', bookingRoutes)

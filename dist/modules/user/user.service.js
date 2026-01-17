@@ -99,9 +99,22 @@ const getMyProfile = async (user) => {
         ...cleanProfile
     };
 };
+const updateUserStatus = async (userId, status) => {
+    const user = await prisma_1.prisma.user.findUnique({ where: { id: userId } });
+    if (!user)
+        throw new AppError_1.default(404, "User not found");
+    if (user.role === client_1.UserRole.ADMIN) {
+        throw new AppError_1.default(403, "You cannot modify another admin");
+    }
+    return prisma_1.prisma.user.update({
+        where: { id: userId },
+        data: { status },
+    });
+};
 exports.UserService = {
     createUserService,
     updateUserService: exports.updateUserService,
+    updateUserStatus,
     getAllUsers,
     getMyProfile
 };

@@ -1,8 +1,13 @@
 "use strict";
 // creating product category
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.productService = void 0;
 const deleteFromCloudinary_1 = require("../../config/deleteFromCloudinary");
+const client_1 = require("../../generated/client");
+const AppError_1 = __importDefault(require("../../helper/AppError"));
 const prisma_1 = require("../../lib/prisma");
 const createCategory = async (name) => {
     const existing = await prisma_1.prisma.category.findUnique({
@@ -23,16 +28,37 @@ const updateCategory = async (id, payload) => {
     return result;
 };
 const getCategory = async () => {
-    const result = await prisma_1.prisma.category.findMany({
-        include: {
-            products: {
+    const categories = await prisma_1.prisma.category.findMany({
+        select: {
+            id: true,
+            name: true,
+            _count: {
                 select: {
-                    productImages: true
-                }
-            }
-        }
+                    products: true,
+                },
+            },
+            products: {
+                take: 1, // 👈 only ONE product
+                orderBy: {
+                    createdAt: 'desc', // latest product (or popular later)
+                },
+                select: {
+                    productImages: {
+                        take: 1, // 👈 only ONE image
+                        select: {
+                            imageUrl: true,
+                        },
+                    },
+                },
+            },
+        },
     });
-    return result;
+    return categories.map(category => ({
+        id: category.id,
+        name: category.name,
+        productCount: category._count.products,
+        image: category.products[0]?.productImages[0]?.imageUrl || null,
+    }));
 };
 const deleteCategory = async (id) => {
     const result = await prisma_1.prisma.category.delete({
@@ -214,7 +240,8 @@ const updateProduct = async (productId, sellerId, payload) => {
     });
     return updatedProduct;
 };
-const getProduct = async ({ page, limit, searchTerm, category, minPrice, maxPrice, orderBy = "asc", sortBy = "createdAt", }) => {
+const getProduct = async ({ page, limit, searchTerm, category, minPrice, maxPrice, orderBy = "asc", sortBy = "createdAt", isFeatured, // ✅ NEW
+ }) => {
     const skip = (page - 1) * limit;
     const where = {};
     // 🔍 Search by name
@@ -234,14 +261,18 @@ const getProduct = async ({ page, limit, searchTerm, category, minPrice, maxPric
         };
     }
     // 💰 Filter by price
-    if (minPrice || maxPrice) {
+    if (minPrice !== undefined || maxPrice !== undefined) {
         where.price = {};
-        if (minPrice) {
+        if (minPrice !== undefined) {
             where.price.gte = minPrice;
         }
-        if (maxPrice) {
+        if (maxPrice !== undefined) {
             where.price.lte = maxPrice;
         }
+    }
+    // ⭐ Filter by featured products
+    if (isFeatured !== undefined) {
+        where.isFeatured = isFeatured;
     }
     const [products, total] = await Promise.all([
         prisma_1.prisma.product.findMany({
@@ -252,6 +283,7 @@ const getProduct = async ({ page, limit, searchTerm, category, minPrice, maxPric
                 [sortBy]: orderBy,
             },
             include: {
+                user: { select: { name: true, profilePhoto: true, email: true } },
                 productImages: true,
                 category: true,
             },
@@ -272,43 +304,69 @@ const getSingleProduct = async (slug) => {
     const product = await prisma_1.prisma.product.findUniqueOrThrow({
         where: { slug },
         include: {
-            productImages: true
+            productImages: true,
+            category: true
         }
     });
     return product;
 };
-const deleteProduct = async (id) => {
-    const product = await prisma_1.prisma.product.findFirstOrThrow({
-        where: { id },
-        include: {
-            productImages: true
-        }
+const deleteProduct = async (productId, requester) => {
+    const tour = await prisma_1.prisma.product.findUnique({
+        where: { id: productId },
+        include: { productImages: true }
     });
-    if (product.productImages.length > 0) {
-        for (const image of product.productImages) {
-            try {
-                await (0, deleteFromCloudinary_1.deleteFromCloudinary)(image.imageId);
-                console.log(image.imageId);
-            }
-            catch (error) {
-                console.log(error);
-            }
-        }
+    if (!tour)
+        throw new AppError_1.default(404, "Product not found");
+    // ROLE BASED ACCESS
+    const isOwner = tour.userId === requester.id;
+    const isAdmin = requester.userRole === client_1.UserRole.ADMIN;
+    console.log("request role", requester.userRole);
+    if (!isOwner && !isAdmin) {
+        throw new AppError_1.default(403, "You are not allowed to delete this tour");
     }
-    for (const image of product.productImages) {
-        const imageId = image.imageId;
+    // delete cloudinary images
+    for (const image of tour.productImages) {
         try {
-            await (0, deleteFromCloudinary_1.deleteFromCloudinary)(imageId);
+            await (0, deleteFromCloudinary_1.deleteFromCloudinary)(image.imageId);
         }
-        catch (error) {
-            console.log(error);
-        }
+        catch { }
     }
-    await prisma_1.prisma.productImage.deleteMany({
-        where: { productId: id }
+    await prisma_1.prisma.review.deleteMany({ where: { productId } });
+    await prisma_1.prisma.wishlist.deleteMany({ where: { productId } });
+    await prisma_1.prisma.orderItem.deleteMany({ where: { productId } });
+    await prisma_1.prisma.productImage.deleteMany({ where: { productId } });
+    return prisma_1.prisma.product.delete({ where: { id: productId } });
+};
+const getMyProducts = async (productId) => {
+    const product = await prisma_1.prisma.product.findMany({
+        where: { userId: productId },
+        include: {
+            productImages: true,
+            user: true,
+            orderItems: true,
+            category: true
+        },
+        orderBy: { createdAt: "desc" }
     });
-    const result = await prisma_1.prisma.product.delete({ where: { id } });
-    return result;
+    return product;
+};
+const togglePorductStatus = async (productId, requester) => {
+    const product = await prisma_1.prisma.product.findUnique({ where: { id: productId } });
+    if (!product)
+        throw new AppError_1.default(404, "Tour not found");
+    console.log("request role", product.userId);
+    console.log("request role", requester.id);
+    const isOwner = product.userId === requester.id;
+    const isAdmin = requester.userRole === client_1.UserRole.ADMIN;
+    if (!isOwner && !isAdmin) {
+        throw new AppError_1.default(403, "You are not allowed to update this tour");
+    }
+    const newStatus = product.isActive === true ? false : true;
+    const updatedProduct = await prisma_1.prisma.product.update({
+        where: { id: productId },
+        data: { isActive: newStatus },
+    });
+    return updatedProduct;
 };
 exports.productService = {
     createProduct,
@@ -316,6 +374,8 @@ exports.productService = {
     getProduct,
     deleteProduct,
     getSingleProduct,
+    getMyProducts,
+    togglePorductStatus,
     createCategory,
     updateCategory,
     getCategory,

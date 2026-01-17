@@ -205,52 +205,10 @@ const sslCancelHandler = async (req, res) => {
     }
     return res.redirect(`${process.env.SSL_CANCEL_FRONTEND_URL}?transactionId=${transactionId}`);
 };
-// Get user orders
-const getUserOrdersController = async (req, res, next) => {
-    try {
-        const userId = req.user?.id;
-        if (!userId) {
-            throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "User authentication required");
-        }
-        const orders = await payment_service_1.OrderPaymentService.getUserOrders(userId);
-        res.status(http_status_codes_1.default.OK).json({
-            success: true,
-            message: "Orders fetched successfully",
-            data: orders
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-};
-// Get order by ID
-const getOrderByIdController = async (req, res, next) => {
-    try {
-        const orderId = req.params.id;
-        const userId = req.user?.id;
-        if (!orderId) {
-            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Order ID is required");
-        }
-        if (!userId) {
-            throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "User authentication required");
-        }
-        const order = await payment_service_1.OrderPaymentService.getOrderById(orderId, userId);
-        res.status(http_status_codes_1.default.OK).json({
-            success: true,
-            message: "Order fetched successfully",
-            data: order
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-};
 exports.PaymentController = {
     createOrderController,
     initiatePaymentController,
     sslSuccessHandler,
     sslCancelHandler,
     sslFailHandler,
-    getUserOrdersController,
-    getOrderByIdController
 };

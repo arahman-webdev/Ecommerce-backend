@@ -87,6 +87,7 @@ const createOrderFromCart = async (userId, payload) => {
                 items: {
                     create: items.map((item) => ({
                         productId: item.productId,
+                        product: item.product,
                         quantity: item.quantity,
                         price: item.price,
                         name: item.name
@@ -291,64 +292,7 @@ const initOrderPayment = async (orderId, userId) => {
 //         };
 //     });
 // };
-// Get user orders
-const getUserOrders = async (userId) => {
-    return await prisma_1.prisma.order.findMany({
-        where: { userId },
-        include: {
-            items: {
-                include: {
-                    product: {
-                        include: {
-                            productImages: true
-                        }
-                    },
-                    variant: true
-                }
-            },
-            payment: true,
-            shippingAddress: true,
-            billingAddress: true
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
-};
-// Get order by ID
-const getOrderById = async (orderId, userId) => {
-    const order = await prisma_1.prisma.order.findUnique({
-        where: { id: orderId },
-        include: {
-            items: {
-                include: {
-                    product: {
-                        include: {
-                            productImages: true
-                        }
-                    },
-                    variant: true
-                }
-            },
-            payment: true,
-            shippingAddress: true,
-            billingAddress: true,
-            user: true
-        }
-    });
-    if (!order) {
-        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Order not found");
-    }
-    // Check if user owns this order or is admin
-    if (order.userId !== userId) {
-        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "Access denied");
-    }
-    return order;
-};
 exports.OrderPaymentService = {
     createOrderFromCart,
     initOrderPayment,
-    // processSuccessfulPayment,
-    getUserOrders,
-    getOrderById
 };

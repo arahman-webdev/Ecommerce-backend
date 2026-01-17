@@ -19,6 +19,8 @@ router.put('/category/:id', product_controller_1.productController.updateCategor
 router.post('/create', (0, checkAuth_1.default)(enums_1.UserRole.SELLER), multer_config_1.upload.array('images'), product_controller_1.productController.createProduct);
 router.put('/:id', (0, checkAuth_1.default)(enums_1.UserRole.SELLER), multer_config_1.upload.array('images'), product_controller_1.productController.updateProduct);
 router.get('/', product_controller_1.productController.getProduct);
+router.get("/my-products", (0, checkAuth_1.default)(enums_1.UserRole.SELLER), product_controller_1.productController.getMyProducts);
+router.patch("/toggle-status/:id", (0, checkAuth_1.default)(enums_1.UserRole.SELLER, enums_1.UserRole.ADMIN), product_controller_1.productController.togglePorductStatus);
 router.get('/:slug', product_controller_1.productController.getSingleProduct);
 router.delete('/:id', (0, checkAuth_1.default)(enums_1.UserRole.SELLER, enums_1.UserRole.ADMIN), product_controller_1.productController.deleteProduct);
 exports.productRouter = router;
