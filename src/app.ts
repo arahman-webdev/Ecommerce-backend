@@ -9,6 +9,7 @@ import { productRouter } from "./modules/products/product.router";
 import { wishlistRouter } from "./modules/wishlist/wishlist.router";
 import { paymentRoutes } from "./modules/payment/payment.router";
 import { orderRoutes } from "./modules/order/order.router";
+import { cartRoutes } from "./modules/cart/cart.router";
 
 
 // import { randomBytes } from "crypto";
@@ -49,9 +50,7 @@ app.use('/api/wishlist', wishlistRouter)
 app.use('/api/product', wishlistRouter)
 app.use('/api/payment', paymentRoutes)
 app.use('/api/order', orderRoutes)
-// app.use('/api/tour', tourRoutes)
-// app.use('/api/wishlist', wishlistRouter)
-// app.use('/api/bookings', bookingRoutes)
+app.use('/api/cart', cartRoutes)
 // app.use('/api/payment', paymentRoutes)
 // app.use('/api/reviews', reviewRoutes)
 

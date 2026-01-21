@@ -14,6 +14,7 @@ const product_router_1 = require("./modules/products/product.router");
 const wishlist_router_1 = require("./modules/wishlist/wishlist.router");
 const payment_router_1 = require("./modules/payment/payment.router");
 const order_router_1 = require("./modules/order/order.router");
+const cart_router_1 = require("./modules/cart/cart.router");
 // import { randomBytes } from "crypto";
 exports.app = (0, express_1.default)();
 const corsOptions = {
@@ -43,9 +44,7 @@ exports.app.use('/api/wishlist', wishlist_router_1.wishlistRouter);
 exports.app.use('/api/product', wishlist_router_1.wishlistRouter);
 exports.app.use('/api/payment', payment_router_1.paymentRoutes);
 exports.app.use('/api/order', order_router_1.orderRoutes);
-// app.use('/api/tour', tourRoutes)
-// app.use('/api/wishlist', wishlistRouter)
-// app.use('/api/bookings', bookingRoutes)
+exports.app.use('/api/cart', cart_router_1.cartRoutes);
 // app.use('/api/payment', paymentRoutes)
 // app.use('/api/reviews', reviewRoutes)
 // Test route for Vercel
