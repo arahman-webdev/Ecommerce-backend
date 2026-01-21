@@ -44,7 +44,28 @@ const getCart = async (req, res, next) => {
         next(error);
     }
 };
+const updateQuantity = async (req, res, next) => {
+    const userId = req.user.userId;
+    const { productId, quantity } = req.body;
+    await cart_service_1.cartService.updateQuantity(userId, productId, quantity);
+    res.status(200).json({
+        success: true,
+        message: "Cart quantity updated successfully",
+    });
+};
+const removeItem = async (req, res, next) => {
+    const userId = req.user.userId;
+    const { productId } = req.params;
+    const result = await cart_service_1.cartService.removeItem(userId, productId);
+    res.status(200).json({
+        success: true,
+        message: "Cart deleted successfully",
+        data: result
+    });
+};
 exports.cartController = {
     createCart,
-    getCart
+    getCart,
+    updateQuantity,
+    removeItem
 };

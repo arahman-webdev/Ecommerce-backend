@@ -13,5 +13,17 @@ router.patch(
   checkAuth(UserRole.CUSTOMER),
   cartController.updateQuantity
 );
+router.delete(
+  "/:productId",
+  checkAuth(UserRole.CUSTOMER),
+  cartController.removeItem
+);
+
+router.delete(
+  "/clear",
+  checkAuth(UserRole.CUSTOMER),
+  cartController.clearCart
+);
+
 
 export const cartRoutes = router;

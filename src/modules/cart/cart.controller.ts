@@ -72,8 +72,42 @@ const updateQuantity = async (req: Request & { user: any }, res: Response, next:
 
 };
 
+const removeItem = async(req:Request & {user:any}, res:Response,next:NextFunction) => {
+  const userId = req.user.userId;
+  const { productId } = req.params;
+
+ const result = await cartService.removeItem(userId, productId);
+  res.status(200).json({
+    success: true,
+    message: "Cart deleted successfully",
+    data:result
+  });
+ 
+};
+
+const clearCart = async (
+  req: Request & { user: any },
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user.userId;
+
+    await cartService.clearUserCart(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Cart cleared successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const cartController = {
   createCart,
   getCart,
-  updateQuantity
+  updateQuantity,
+  removeItem,
+  clearCart
 };

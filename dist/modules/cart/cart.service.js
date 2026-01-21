@@ -93,15 +93,44 @@ const getUserCart = async (userId) => {
                 include: {
                     product: {
                         include: {
-                            productImages: true // This is crucial!
+                            productImages: true
                         }
-                    },
+                    }
                 },
             },
         },
     });
 };
+const updateQuantity = async (userId, productId, quantity) => {
+    const cart = await prisma_1.prisma.cart.findUnique({
+        where: { userId }
+    });
+    if (!cart)
+        throw new Error("Cart not found");
+    return prisma_1.prisma.cartItem.updateMany({
+        where: {
+            cartId: cart.id,
+            productId
+        },
+        data: { quantity }
+    });
+};
+const removeItem = async (userId, productId) => {
+    const cart = await prisma_1.prisma.cart.findUnique({
+        where: { userId }
+    });
+    if (!cart)
+        throw new Error("Cart not found");
+    return prisma_1.prisma.cartItem.deleteMany({
+        where: {
+            cartId: cart.id,
+            productId
+        }
+    });
+};
 exports.cartService = {
     createCart,
-    getUserCart
+    getUserCart,
+    updateQuantity,
+    removeItem
 };

@@ -12,4 +12,6 @@ const enums_1 = require("../../generated/enums");
 const router = express_1.default.Router();
 router.post("/merge", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), cart_controller_1.cartController.createCart);
 router.get("/", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), cart_controller_1.cartController.getCart);
+router.patch("/quantity", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), cart_controller_1.cartController.updateQuantity);
+router.delete("/:productId", (0, checkAuth_1.default)(enums_1.UserRole.CUSTOMER), cart_controller_1.cartController.removeItem);
 exports.cartRoutes = router;
